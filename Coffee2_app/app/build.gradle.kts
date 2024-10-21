@@ -37,8 +37,8 @@ android {
 
 dependencies {
     //check later for the implementation of firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.firestore)
+    implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
+    implementation("com.google.firebase:firebase-firestore")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
