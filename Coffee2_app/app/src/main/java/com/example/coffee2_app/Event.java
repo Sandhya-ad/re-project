@@ -9,7 +9,7 @@ import java.util.List;
 public class Event implements Serializable {
     private String id;
     private String name;
-    private String organizer;
+    private User organizer;
     private int maxAttendees;
     private List<User> attendees;
     private List<User> waitingList;
@@ -18,7 +18,7 @@ public class Event implements Serializable {
     private String endDate;
 
     //Constructor if no maxAttendees
-    public Event(String id, String name, String organizer,String startDate, String endDate,String hashQrData) {
+    public Event(String id, String name, User organizer,String startDate, String endDate,String hashQrData) {
         this.id = id;
         this.name = name;
         this.attendees = new ArrayList<>();
@@ -31,7 +31,7 @@ public class Event implements Serializable {
 
 
     // Constructor if maxAttendees
-    public Event(String id, String name, String organizer, String startDate, String endDate, String hashQrData,Integer maxAttendees) {
+    public Event(String id, String name, User organizer, String startDate, String endDate, String hashQrData,Integer maxAttendees) {
         this.id = id;
         this.name = name;
         this.attendees = new ArrayList<>();
@@ -55,7 +55,7 @@ public class Event implements Serializable {
     public String getName() {
         return name;
     }
-    public String getOrganizer(){
+    public User getOrganizer(){
         return organizer;
     }
     public int getMaxAttendees() {
