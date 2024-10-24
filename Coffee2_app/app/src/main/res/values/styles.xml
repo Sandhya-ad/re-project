@@ -1,0 +1,8 @@
+<resources>
+    <!-- Base application theme with NoActionBar -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/blue</item>
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/white</item>
+    </style>
+</resources>
