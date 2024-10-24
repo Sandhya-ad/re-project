@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/entrant_navigation_home">
+
+    <fragment
+        android:id="@+id/entrant_navigation_home"
+        android:name="com.example.coffee2_app.Entrant_ui.signedup.SignedUpFragment"
+        android:label="@string/title_signed_up"
+        tools:layout="@layout/fragment_signed_up" />
+
+    <fragment
+        android:id="@+id/entrant_navigation_waitlist"
+        android:name="com.example.coffee2_app.Entrant_ui.waitlist.WaitlistFragment"
+        android:label="@string/title_waitlist"
+        tools:layout="@layout/fragment_waitlist" />
+
+    <fragment
+        android:id="@+id/entrant_navigation_notifications"
+        android:name="com.example.coffee2_app.Entrant_ui.profile.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile" />
+</navigation>

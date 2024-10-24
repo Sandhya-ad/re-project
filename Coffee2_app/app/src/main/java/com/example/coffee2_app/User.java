@@ -11,6 +11,7 @@ public class User implements Serializable {
     private String userId; //Later set the userID to the deviceID
     private String name;
     private String email;
+    private Boolean isAdmin;//Instead of having a set of roles, we could just have isAdmin or not
     private Set<String> roles;  // Set of roles like "entrant", "organizer", "admin"
 
     // Constructor
