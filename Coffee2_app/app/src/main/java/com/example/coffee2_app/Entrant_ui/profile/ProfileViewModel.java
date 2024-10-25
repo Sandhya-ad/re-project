@@ -1,16 +1,16 @@
-package com.example.coffee2_app.ui.waitlist;
+package com.example.coffee2_app.Entrant_ui.profile;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class WaitlistViewModel extends ViewModel {
+public class ProfileViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public WaitlistViewModel() {
+    public ProfileViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is Waitlist fragment");
+        mText.setValue("This is profile fragment");
     }
 
     public LiveData<String> getText() {
