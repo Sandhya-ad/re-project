@@ -5,6 +5,7 @@ import android.content.Intent;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.*;
 
 public class Event implements Serializable {
     private String id;
