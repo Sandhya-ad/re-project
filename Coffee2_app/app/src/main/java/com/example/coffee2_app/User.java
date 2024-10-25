@@ -1,0 +1,61 @@
+package com.example.coffee2_app;
+
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+
+public class User implements Serializable {
+
+    //Does not have a profile picture yet
+
+    private String userId; //Later set the userID to the deviceID
+    private String name;
+    private String email;
+    private Set<String> roles;  // Set of roles like "entrant", "organizer", "admin"
+
+    // Constructor
+    public User(String userId, String name, String email) {
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
+        this.roles = new HashSet<>();
+        this.roles.add("entrant");  // Default role is 'entrant'
+    }
+
+    // Getters and Setters
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Set<String> getRoles() {
+        return roles;
+    }
+
+    public void addRole(String role) {
+        this.roles.add(role);
+    }
+
+    public void removeRole(String role) {
+        this.roles.remove(role);
+    }
+}
