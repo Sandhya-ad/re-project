@@ -27,11 +27,13 @@ public class Event implements Serializable {
         this.startDate= startDate;
         this.endDate = endDate;
         this.hashQrData = hashQrData;
+        // Indicator for infinite max attendees
+        this.maxAttendees = -1;
     }
 
 
     // Constructor if maxAttendees
-    public Event(String id, String name, User organizer, String startDate, String endDate, String hashQrData,Integer maxAttendees) {
+    public Event(String id, String name, User organizer, String startDate, String endDate, String hashQrData, int maxAttendees) {
         this.id = id;
         this.name = name;
         this.attendees = new ArrayList<>();
