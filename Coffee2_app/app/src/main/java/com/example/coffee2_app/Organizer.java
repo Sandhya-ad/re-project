@@ -7,6 +7,7 @@ public class Organizer extends User {
     private ArrayList<Event> events;
     private String name;
     private String address;
+    private String email;
 
     /**
      * Constructor class for the Organization
@@ -41,6 +42,18 @@ public class Organizer extends User {
      * @return Address
      */
     public String getAddress() { return this.address; }
+
+    /**
+     * Setter for Email
+     * @param email
+     */
+    public void setEmail(String email) { this.email = email; }
+
+    /**
+     * Getter for Email address
+     * @return Email
+     */
+    public String getEmail() { return this.email; }
 
     /**
      * Adds event into the Organizer's Event List

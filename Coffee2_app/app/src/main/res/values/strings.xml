@@ -5,4 +5,13 @@
     <string name="title_profile">Profile</string>
     <string name="my_events">My Events</string>
     <string name="add_event">Add Event</string>
+    <string name="facility_profile">Facility Profile</string>
+    <string name="name">Name</string>
+    <string name="enter_name">Enter Name...</string>
+    <string name="address">Address</string>
+    <string name="enter_address">Enter Address...</string>
+    <string name="enter_email">Enter Email...</string>
+    <string name="email">Email</string>
+    <string name="phone_number">Phone Number...</string>
+    <string name="enter_phone_number">Enter Phone Number...</string>
 </resources>
