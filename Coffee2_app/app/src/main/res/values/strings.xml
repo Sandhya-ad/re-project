@@ -34,4 +34,5 @@
     <string name="max_entries">Max Entries</string>
     <string name="enable_geolocation">Enable Geolocation</string>
     <string name="publish_event">Publish Event</string>
+    <string name="my_profile">My Profile</string>
 </resources>

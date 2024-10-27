@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"> <!-- Padding to prevent clipping of buttons -->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Receive notifications from:"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"/>
+
+    <CheckBox
+        android:id="@+id/checkbox_admin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Admin"
+        android:buttonTint="@color/main_blue"/>
+
+    <CheckBox
+        android:id="@+id/checkbox_organizer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Organizer"
+        android:buttonTint="@color/main_blue"/>
+</LinearLayout>
