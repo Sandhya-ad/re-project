@@ -33,4 +33,5 @@
     <string name="enter_number">Enter Number...</string>
     <string name="max_entries">Max Entries</string>
     <string name="enable_geolocation">Enable Geolocation</string>
+    <string name="publish_event">Publish Event</string>
 </resources>
