@@ -41,7 +41,7 @@
                 android:layout_marginStart="8dp"
                 android:background="@drawable/rounded_text_background"
                 android:padding="8dp"
-                android:text="@string/add_event"
+                android:text="@string/event"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -61,92 +61,87 @@
             tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
+            android:id="@+id/event_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:text="@string/event_name"
+            android:text="@string/placeholder_event_title"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="32sp"
             android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/edit_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/enter_name"
-            android:inputType="text"
-            android:minHeight="32dp"/>
 
         <TextView
+            android:id="@+id/event_organizer_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/draw_date"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:layout_width="80dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="16dp"
-                android:backgroundTint="@color/main_blue"
-                android:text="@string/edit"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                android:text="@string/date_here"
-                android:textStyle="normal" />
-
-        </LinearLayout>
+            android:layout_marginTop="4dp"
+            android:textAlignment="center"
+            android:text="Organizer Name"
+            android:textStyle="normal" />
 
         <TextView
+            android:id="@+id/event_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/max_entries"
+            android:layout_marginTop="4dp"
+            android:textAlignment="center"
+            android:text="@string/location"
             android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/max_entries"
+        <TextView
+            android:id="@+id/event_time_left"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/enter_number"
-            android:inputType="numberDecimal"
-            android:minHeight="32dp"/>
+            android:layout_marginTop="4dp"
+            android:textAlignment="center"
+            android:text="@string/time_left"
+            android:textStyle="bold" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/event_entries"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp">
-
-            <CheckBox
-                android:id="@+id/event_geolocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/enable_geolocation"
-                android:textStyle="bold"/>
-
-        </LinearLayout>
+            android:layout_marginTop="4dp"
+            android:textAlignment="center"
+            android:text="@string/entires_d"
+            android:textStyle="bold" />
 
         <Button
-            android:id="@+id/save_button"
+            android:id="@+id/event_view_entries"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/publish_event"
+            android:text="@string/view_entries"
             android:layout_marginTop="32dp"
             android:backgroundTint="@color/main_blue"
             />
 
+        <Button
+            android:id="@+id/event_share_qr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/share_qr_code"
+            android:layout_marginTop="2dp"
+            android:backgroundTint="@color/main_blue"
+            />
+
+        <Button
+            android:id="@+id/event_edit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/edit_event"
+            android:layout_marginTop="2dp"
+            android:backgroundTint="@color/light_grey"
+            />
+
+        <Button
+            android:id="@+id/event_end_draw"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/end_draw"
+            android:layout_marginTop="2dp"
+            android:backgroundTint="@color/main_red"
+            />
 
 
     </LinearLayout>
