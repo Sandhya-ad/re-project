@@ -34,4 +34,7 @@
     <string name="max_entries">Max Entries</string>
     <string name="enable_geolocation">Enable Geolocation</string>
     <string name="publish_event">Publish Event</string>
+    <string name="status">STATUS</string>
+    <string name="event_date">Event Date</string>
+    <string name="event_title">Event Title</string>
 </resources>

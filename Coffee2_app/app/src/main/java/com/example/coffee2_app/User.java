@@ -8,9 +8,9 @@ public class User implements Serializable {
     //Does not have a profile picture yet
 
     private String userId; //Later set the userID to the deviceID
-    private String name; // Moving these into the classes themselves
-    private String email; // Moving these into the classes themselves
-    private Boolean isAdmin;//Instead of having a set of roles, we could just have isAdmin or not
+    // private String name; // Moving these into the classes themselves
+    // private String email; // Moving these into the classes themselves
+    // private Boolean isAdmin;//Instead of having a set of roles, we could just have isAdmin or not
     private Set<String> roles;  // Set of roles like "entrant", "organizer", "admin"
 
     // Constructor
