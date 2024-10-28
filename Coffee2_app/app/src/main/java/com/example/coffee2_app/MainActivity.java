@@ -2,6 +2,7 @@ package com.example.coffee2_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,9 +19,13 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private ActivityMainBinding binding;
+    private String deviceID;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);  // Use the XML layout with the 3 buttons
+
+        deviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
         // Find the buttons
         Button buttonEntrant = findViewById(R.id.button_enter_entrant);
