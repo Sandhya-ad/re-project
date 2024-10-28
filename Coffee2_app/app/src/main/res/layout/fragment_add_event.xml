@@ -68,7 +68,7 @@
             android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/edit_title"
+            android:id="@+id/event_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/enter_name"
@@ -88,6 +88,7 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/date_button"
                 android:layout_width="80dp"
                 android:layout_height="40dp"
                 android:layout_marginEnd="16dp"
@@ -96,6 +97,7 @@
                 />
 
             <TextView
+                android:id="@+id/event_draw_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="0dp"
@@ -112,7 +114,7 @@
             android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/max_entries"
+            android:id="@+id/event_entries"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/enter_number"

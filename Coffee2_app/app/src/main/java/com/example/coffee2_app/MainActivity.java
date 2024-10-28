@@ -38,14 +38,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Set click listener for "Enter as Organizer" button
-//        buttonOrganizer.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Navigate to OrganizerHomeActivity when the button is clicked (create this activity)
-//                Intent intent = new Intent(MainActivity.this, OrganizerHomeActivity.class);
-//                startActivity(intent);
-//            }
-//        });
+        buttonOrganizer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to OrganizerHomeActivity when the button is clicked (create this activity)
+                Intent intent = new Intent(MainActivity.this, OrganizerHomeActivity.class);
+                startActivity(intent);
+            }
+        });
 //
 //        // Set click listener for "Enter as Admin" button
 //        buttonAdmin.setOnClickListener(new View.OnClickListener() {

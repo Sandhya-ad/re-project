@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/organizer_my_events"
+        android:id="@+id/organizer_navigation_home"
         android:icon="@drawable/ic_waitlist_black_24dp"
         android:title="@string/my_events" />
 
     <item
-        android:id="@+id/organizer_add_event"
+        android:id="@+id/organizer_navigation_addevent"
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/add_event" />
 
     <item
-        android:id="@+id/organizer_profile"
-        android:icon="@android:drawable/ic_menu_myplaces"
+        android:id="@+id/organizer_navigation_profile"
+        android:icon="@drawable/ic_account_circle_24"
         android:title="@string/title_profile" />
 
 </menu>

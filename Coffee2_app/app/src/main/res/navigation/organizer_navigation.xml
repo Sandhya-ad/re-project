@@ -18,7 +18,7 @@
         tools:layout="@layout/fragment_add_event" />
 
     <fragment
-        android:id="@+id/entrant_navigation_notifications"
+        android:id="@+id/organizer_navigation_profile"
         android:name="com.example.coffee2_app.Organizer_ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_organizer_profile" />

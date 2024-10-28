@@ -35,4 +35,6 @@
     <string name="enable_geolocation">Enable Geolocation</string>
     <string name="publish_event">Publish Event</string>
     <string name="my_profile">My Profile</string>
+    <string name="facility">Facility</string>
+    <string name="enter_facility_name">Enter Facility Name...</string>
 </resources>
