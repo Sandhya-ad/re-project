@@ -1,12 +1,16 @@
 package com.example.coffee2_app;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.coffee2_app.databinding.ActivityMainBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private ActivityMainBinding binding;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);  // Use the XML layout with the 3 buttons
@@ -72,5 +77,4 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("FirestoreCheck", "Error adding document", e);
                 });
     }
-
 }

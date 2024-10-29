@@ -41,7 +41,7 @@
                 android:layout_marginStart="8dp"
                 android:background="@drawable/rounded_text_background"
                 android:padding="8dp"
-                android:text="@string/facility_profile"
+                android:text="@string/organizer_profile"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -57,8 +57,12 @@
         <ImageView
             android:id="@+id/organizer_image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:layout_height="120dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_account_circle_24"
+            android:contentDescription="Profile Picture"
+            android:clickable="true"
+            android:focusable="true"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -105,29 +109,21 @@
             android:inputType="phone"
             android:minHeight="32dp"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/facility"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/facility_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/enter_facility_name"
-            android:inputType="text"
-            android:minHeight="32dp"/>
-
         <Button
             android:id="@+id/edit_profile_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/save"
             android:layout_marginTop="32dp"
-            android:backgroundTint="@color/main_blue"
-            />
+            android:backgroundTint="@color/main_blue"/>
+
+        <Button
+            android:id="@+id/edit_facility_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="My Facility"
+            android:layout_marginTop="32dp"
+            android:backgroundTint="@color/main_blue"/>
 
     </LinearLayout>
 </LinearLayout>

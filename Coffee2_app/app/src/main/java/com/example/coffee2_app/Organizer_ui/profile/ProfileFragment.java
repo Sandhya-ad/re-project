@@ -13,9 +13,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentOrganizerProfileBinding;
-import com.example.coffee2_app.databinding.FragmentProfileBinding;
 
 public class ProfileFragment extends Fragment {
 
@@ -31,7 +33,7 @@ public class ProfileFragment extends Fragment {
         View root = binding.getRoot();
 
         // Hide Save Button by default
-        binding.editProfileButton.setVisibility(View.GONE);
+        //binding.editProfileButton.setVisibility(View.GONE);
 
         // Back button listener
         binding.backButton.setOnClickListener(v -> getActivity().onBackPressed());
@@ -44,6 +46,9 @@ public class ProfileFragment extends Fragment {
             saveProfileData();
             toggleEditMode(); // Exit edit mode after saving
         });
+
+        // Facility button click listener to view/edit profile
+        binding.editFacilityButton.setOnClickListener(view -> showFacilityFragment());
 
         // Profile picture click listener, only triggers in edit mode
         binding.organizerImage.setOnClickListener(view -> {
@@ -58,6 +63,11 @@ public class ProfileFragment extends Fragment {
     private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    private void showFacilityFragment() {
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.navigate(R.id.facilityFragment);
     }
 
     @Override
@@ -93,14 +103,12 @@ public class ProfileFragment extends Fragment {
         binding.organizerName.setEnabled(enabled);
         binding.organizerEmail.setEnabled(enabled);
         binding.organizerPhone.setEnabled(enabled);
-        binding.facilityName.setEnabled(enabled);
 
         int bgColor = enabled ? getResources().getColor(android.R.color.background_light) : getResources().getColor(android.R.color.transparent);
 
         binding.organizerName.setBackgroundColor(bgColor);
         binding.organizerEmail.setBackgroundColor(bgColor);
         binding.organizerPhone.setBackgroundColor(bgColor);
-        binding.facilityName.setBackgroundColor(bgColor);
 
         if (enabled) {
             binding.organizerName.requestFocus();
@@ -109,12 +117,10 @@ public class ProfileFragment extends Fragment {
 
     private void saveProfileData() {
         String name = binding.organizerName.getText().toString().trim();
-        String address = binding.organizerEmail.getText().toString().trim();
-        String email = binding.organizerPhone.getText().toString().trim();
-        String phone = binding.facilityName.getText().toString().trim();
+        String email = binding.organizerEmail.getText().toString().trim();
+        String phone = binding.organizerPhone.getText().toString().trim();
         //Just to check before the db is implemented
-        String message = "Profile saved:\nName: " + name + "\nAddress: " + address +
-                "\nEmail: " + email + "\nPhone: " + (phone.isEmpty() ? "Not provided" : phone);
+        String message = "Profile saved:\nName: " + name + "\nEmail: " + email + "\nPhone: " + (phone.isEmpty() ? "Not provided" : phone);
 
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
