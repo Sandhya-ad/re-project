@@ -15,7 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.coffee2_app.Event;
 import com.example.coffee2_app.EventsAdapter;
 import com.example.coffee2_app.R;
+import com.example.coffee2_app.User;
 import com.example.coffee2_app.databinding.FragmentMyEventsBinding;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -62,8 +64,16 @@ public class MyEventsFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            // Assuming your Event class has a constructor that takes in data
-                            Event event = document.toObject(Event.class);
+                            String id = "";
+                            String name = document.getString("name");
+                            User organizer = new User("");
+                            int maxEntries = document.getLong("entriesLimit").intValue();
+                            boolean collectGeo = document.getBoolean("collectGeoStatus");
+                            String hashQRData = "";
+                            Timestamp eventDate = document.getTimestamp("eventDate");
+                            Timestamp drawDate = document.getTimestamp("drawDate");
+
+                            Event event = new Event(id, name, organizer, maxEntries, collectGeo, hashQRData, eventDate, drawDate);
                             eventList.add(event);
                         }
                         eventsAdapter.notifyDataSetChanged(); // Notify the adapter that data has changed

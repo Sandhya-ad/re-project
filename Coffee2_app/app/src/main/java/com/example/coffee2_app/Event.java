@@ -10,19 +10,18 @@ public class Event implements Serializable {
     private String name;
     private User organizer;
     private int maxEntries;
+    private boolean collectGeo;
     private List<User> attendees;
     private List<User> waitingList;
     private String hashQrData;
     private Timestamp eventDate;
     private Timestamp drawDate;
 
-    // No-argument constructor
-    public Event() {
-        // Required for Firestore
-    }
+    // No-argument constructor (Required for Firestore)
+    public Event() {}
 
     //Constructor if no maxAttendees
-    public Event(String id, String name, User organizer,Timestamp eventDate, Timestamp drawDate,String hashQrData) {
+    public Event(String id, String name, User organizer, boolean collectGeo, String hashQrData, Timestamp eventDate, Timestamp drawDate) {
         this.id = id;
         this.name = name;
         this.attendees = new ArrayList<>();
@@ -30,13 +29,13 @@ public class Event implements Serializable {
         this.organizer = organizer;
         this.eventDate= eventDate;
         this.drawDate = drawDate;
+        this.collectGeo = collectGeo;
         this.hashQrData = hashQrData;
-        // Indicator for infinite max attendees
-        this.maxEntries = -1;
+        this.maxEntries = -1; // Indicator for infinite max attendees
     }
 
     // Constructor if maxAttendees
-    public Event(String id, String name, User organizer, Timestamp eventDate, Timestamp drawDate, String hashQrData, int maxEntries) {
+    public Event(String id, String name, User organizer, int maxEntries, boolean collectGeo, String hashQrData, Timestamp eventDate, Timestamp drawDate) {
         this.id = id;
         this.name = name;
         this.attendees = new ArrayList<>();
@@ -44,11 +43,10 @@ public class Event implements Serializable {
         this.organizer = organizer;
         this.eventDate= eventDate;
         this.drawDate = drawDate;
+        this.collectGeo = collectGeo;
         this.hashQrData = hashQrData;
         this.maxEntries = maxEntries;
     }
-
-    // Getter methods (accessible to all)
 
     public String getId() {
         return id;
@@ -80,6 +78,14 @@ public class Event implements Serializable {
 
     public void setMaxEntries(int maxEntries) {
         this.maxEntries = maxEntries;
+    }
+
+    public boolean isCollectGeo() {
+        return collectGeo;
+    }
+
+    public void setCollectGeo(boolean collectGeo) {
+        this.collectGeo = collectGeo;
     }
 
     public List<User> getAttendees() {

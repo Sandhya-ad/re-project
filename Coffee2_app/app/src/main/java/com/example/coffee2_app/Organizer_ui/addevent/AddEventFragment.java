@@ -14,8 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentAddEventBinding;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.ParseException;
@@ -23,14 +22,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class AddEventFragment extends Fragment {
 
     private FragmentAddEventBinding binding;
     private FirebaseFirestore db;
-    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,7 +35,6 @@ public class AddEventFragment extends Fragment {
         binding = FragmentAddEventBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         db = FirebaseFirestore.getInstance();
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
         // Back button listener
         binding.backButton.setOnClickListener(v -> getActivity().onBackPressed());
@@ -93,19 +89,32 @@ public class AddEventFragment extends Fragment {
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         sdf.setLenient(false);
+
+        Date eventDate, drawDate;
         try {
-            Date dateDate = sdf.parse(eventDateString);
-            Date dateDate2 = sdf.parse(drawDateString);
-            Calendar eventDate = Calendar.getInstance();
-            Calendar drawDate = Calendar.getInstance();
-            eventDate.setTime(dateDate);
-            drawDate.setTime(dateDate2);
-            Calendar currentDate = Calendar.getInstance();
-            if (eventDate.before(currentDate) || drawDate.before(currentDate)) {
+            eventDate = sdf.parse(eventDateString);
+            drawDate = sdf.parse(drawDateString);
+        } catch (ParseException e) {
+            Toast.makeText(getContext(), "Please enter a valid date in MM/dd/yyyy format.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Timestamp eventTimestamp = new Timestamp(eventDate);
+        Timestamp drawTimestamp = new Timestamp(drawDate);
+
+        Calendar eventCalendar = Calendar.getInstance();
+        eventCalendar.setTime(eventDate);
+        Calendar drawCalendar = Calendar.getInstance();
+        drawCalendar.setTime(drawDate);
+
+        Calendar currentDate = Calendar.getInstance();
+
+        try {
+            if (eventCalendar.before(currentDate) || drawCalendar.before(currentDate)) {
                 Toast.makeText(getContext(), "Please enter a future date", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (eventDate.before(drawDate)){
+            if (eventCalendar.before(drawCalendar)){
                 Toast.makeText(getContext(), "Please enter an event date AFTER draw date", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -113,24 +122,22 @@ public class AddEventFragment extends Fragment {
                 Toast.makeText(getContext(), "Please enter a valid year (2024-3000)", Toast.LENGTH_SHORT).show();
                 return;
             }
-        } catch (ParseException e) {
-            Toast.makeText(getContext(), "Please enter a valid date in MM/dd/yyyy format.", Toast.LENGTH_SHORT).show();
         } catch (NumberFormatException e) {
             Toast.makeText(getContext(), "Please enter a valid year", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        int entrants;
-        try {
-            entrants = Integer.parseInt(entries);
-            if (entrants < 0 || entrants > 1000) {
-                Toast.makeText(getContext(), "Please enter a valid number of entrants (0-1000)", Toast.LENGTH_LONG).show();
-                return;
-            }
-        } catch (NumberFormatException e) {
-            Toast.makeText(getContext(), "Please enter a valid number", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        int entrants;
+//        try {
+//            entrants = Integer.parseInt(entries);
+//            if (entrants < 0 || entrants > 1000) {
+//                Toast.makeText(getContext(), "Please enter a valid number of entrants (0-1000)", Toast.LENGTH_LONG).show();
+//                return;
+//            }
+//        } catch (NumberFormatException e) {
+//            Toast.makeText(getContext(), "Please enter a valid number", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         //Just to check before the db is implemented
         String message = "Event Created - Name: " + name + ", Event Date: " + eventDateString + ", Draw Date: " + drawDateString + ", Entries: " + entries + ", Geolocation: " + (geolocation ? "On" : "Off");
@@ -139,11 +146,11 @@ public class AddEventFragment extends Fragment {
 
         // Create a map for the event data
         Map<String, Object> eventData = new HashMap<>();
-        eventData.put("Event Name", name);
-        eventData.put("Event Date", eventDateString);
-        eventData.put("Draw Date", drawDateString);
-        eventData.put("Max Entries", entries);
-        eventData.put("Geolocation", (geolocation ? "On" : "Off"));
+        eventData.put("name", name);
+        eventData.put("eventDate", eventTimestamp);
+        eventData.put("drawDate", drawTimestamp);
+        eventData.put("entriesLimit", entries);
+        eventData.put("collectGeoStatus", geolocation);
 
         // Write to Firestore
         db.collection("events") // Change to your collection name
