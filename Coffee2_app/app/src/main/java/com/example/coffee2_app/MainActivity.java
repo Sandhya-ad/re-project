@@ -1,84 +1,122 @@
 package com.example.coffee2_app;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import com.example.coffee2_app.databinding.ActivityMainBinding;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.google.firebase.firestore.Source;
 
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
-    private ActivityMainBinding binding;
     private String deviceID;
+    private User currentUser;
 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);  // Use the XML layout with the 3 buttons
+        setContentView(R.layout.activity_main);
 
+        db = FirebaseFirestore.getInstance();
         deviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-        // Find the buttons
         Button buttonEntrant = findViewById(R.id.button_enter_entrant);
         Button buttonOrganizer = findViewById(R.id.button_enter_organizer);
         Button buttonAdmin = findViewById(R.id.button_enter_admin);
 
-        // Set click listener for "Enter as Entrant" button
-        buttonEntrant.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navigate to EntrantHomeActivity when the button is clicked
-                Intent intent = new Intent(MainActivity.this, EntrantHomeActivity.class);
-                startActivity(intent);
-            }
-        });
+        // Initially hide the Admin button until we confirm user getisAdmin status
+        buttonAdmin.setVisibility(View.GONE);
 
-        // Set click listener for "Enter as Organizer" button
-        buttonOrganizer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navigate to OrganizerHomeActivity when the button is clicked (create this activity)
-                Intent intent = new Intent(MainActivity.this, OrganizerHomeActivity.class);
-                startActivity(intent);
-            }
-        });
-//
-//        // Set click listener for "Enter as Admin" button
-//        buttonAdmin.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Navigate to AdminHomeActivity when the button is clicked (create this activity)
-//                Intent intent = new Intent(MainActivity.this, AdminHomeActivity.class);
-//                startActivity(intent);
-//            }
-//        });
+        if (deviceID != null) {
+            checkAndAddUser(deviceID, newUser -> {
+                // Enable buttons only after currentUser is fully initialized
+                currentUser = newUser;
+                setupButtonListeners(buttonEntrant, buttonOrganizer, buttonAdmin);
+                Log.e("Admin", currentUser.getisAdmin() + "");
+                if (currentUser.getisAdmin()) {
+                    buttonAdmin.setVisibility(View.VISIBLE);
+                }
+            });
+        } else {
+            Log.e("Firestore", "Device ID is null, cannot proceed");
+        }
     }
-    private void writeTestDocument() {
-        // Create a sample data map
-        Map<String, Object> sampleData = new HashMap<>();
-        sampleData.put("message", "Hello, Firestore!");
 
-        // Add a new document with a generated ID
-        db.collection("testCollection")
-                .add(sampleData)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d("FirestoreCheck", "DocumentSnapshot added with ID: " + documentReference.getId());
-                })
-                .addOnFailureListener(e -> {
-                    Log.d("FirestoreCheck", "Error adding document", e);
-                });
+    private void setupButtonListeners(Button buttonEntrant, Button buttonOrganizer, Button buttonAdmin) {
+        buttonEntrant.setOnClickListener(v -> {
+            if (currentUser != null && currentUser.getEntrant().getName() == null){
+                Intent intent = new Intent(MainActivity.this, ProfileSetupActivity.class);
+                intent.putExtra("entrant", currentUser.getEntrant());
+                startActivity(intent);
+            }
+            else if (currentUser != null && currentUser.getEntrant().getName() != null) {
+                Intent intent = new Intent(MainActivity.this, EntrantHomeActivity.class);
+                intent.putExtra("entrant", currentUser.getEntrant());
+                startActivity(intent);
+            } else {
+                Log.e("Firestore", "Entrant role not found for current user");
+            }
+        });
+
+        buttonOrganizer.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, OrganizerHomeActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private void checkAndAddUser(String deviceID, UserCallback callback) {
+        DocumentReference docRef = db.collection("users").document(deviceID);
+
+        // Force fetch from Firestore server to ensure the latest data
+        docRef.get(Source.SERVER).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    User user = document.toObject(User.class);
+                    Log.d("Firestore", "User loaded: " + user);
+
+                    // Debug log for getisAdmin to verify its value
+                    Log.d("AdminCheck", "User loaded with getisAdmin: " + user.getisAdmin());
+
+                    callback.onUserLoaded(user);
+                } else {
+                    Log.d("Firestore", "User does not exist. Creating new user.");
+                    User newUser = new User(deviceID);
+                    db.collection("users").document(deviceID).set(newUser)
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d("Firestore", "New user added");
+                                callback.onUserLoaded(newUser);
+                            })
+                            .addOnFailureListener(e -> Log.e("Firestore", "Failed to add user", e));
+                }
+            } else {
+                Log.e("Firestore", "Error fetching user", task.getException());
+            }
+        });
+    }
+
+
+    public void updateEntrantInFirestore() {
+        Entrant entrant = currentUser.getEntrant();
+        if (deviceID != null && entrant != null) {
+            db.collection("users")
+                    .document(deviceID)  // Use Device ID as the document ID in "users"
+                    .set(entrant)
+                    .addOnSuccessListener(aVoid -> Log.d("Firestore", "Entrant updated successfully in users"))
+                    .addOnFailureListener(e -> Log.e("Firestore", "Error updating entrant in users", e));
+        } else {
+            Log.w("Firestore", "Device ID or Entrant data is null, cannot update Firestore.");
+        }
+    }
+    interface UserCallback {
+        void onUserLoaded(User user);
     }
 }

@@ -1,8 +1,9 @@
 package com.example.coffee2_app;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Organizer extends User {
+public class Organizer implements Serializable {
 
     private ArrayList<Event> events;
     private String name;
@@ -14,7 +15,9 @@ public class Organizer extends User {
      * @param userID
      */
     public Organizer(String userID) {
-        super(userID);
+        this.events = new ArrayList<>();
+    }
+    public Organizer() {
         this.events = new ArrayList<>();
     }
 
