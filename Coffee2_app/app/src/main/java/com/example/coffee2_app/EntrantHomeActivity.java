@@ -12,7 +12,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.coffee2_app.databinding.EntrantMainBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;

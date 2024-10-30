@@ -1,7 +1,6 @@
 package com.example.coffee2_app;
 
-import android.content.Intent;
-
+import com.google.firebase.Timestamp;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,71 +9,122 @@ public class Event implements Serializable {
     private String id;
     private String name;
     private User organizer;
-    private int maxAttendees;
+    private int maxEntries;
+    private boolean collectGeo;
     private List<User> attendees;
     private List<User> waitingList;
     private String hashQrData;
-    private String startDate;
-    private String endDate;
+    private Timestamp eventDate;
+    private Timestamp drawDate;
+
+    // No-argument constructor (Required for Firestore)
+    public Event() {}
 
     //Constructor if no maxAttendees
-    public Event(String id, String name, User organizer,String startDate, String endDate,String hashQrData) {
+    public Event(String id, String name, User organizer, boolean collectGeo, String hashQrData, Timestamp eventDate, Timestamp drawDate) {
         this.id = id;
         this.name = name;
         this.attendees = new ArrayList<>();
         this.waitingList = new ArrayList<>();
         this.organizer = organizer;
-        this.startDate= startDate;
-        this.endDate = endDate;
+        this.eventDate= eventDate;
+        this.drawDate = drawDate;
+        this.collectGeo = collectGeo;
         this.hashQrData = hashQrData;
-        // Indicator for infinite max attendees
-        this.maxAttendees = -1;
+        this.maxEntries = -1; // Indicator for infinite max attendees
     }
-
 
     // Constructor if maxAttendees
-    public Event(String id, String name, User organizer, String startDate, String endDate, String hashQrData, int maxAttendees) {
+    public Event(String id, String name, User organizer, int maxEntries, boolean collectGeo, String hashQrData, Timestamp eventDate, Timestamp drawDate) {
         this.id = id;
         this.name = name;
         this.attendees = new ArrayList<>();
         this.waitingList = new ArrayList<>();
         this.organizer = organizer;
-        this.startDate= startDate;
-        this.endDate = endDate;
+        this.eventDate= eventDate;
+        this.drawDate = drawDate;
+        this.collectGeo = collectGeo;
         this.hashQrData = hashQrData;
-        this.maxAttendees = maxAttendees;
+        this.maxEntries = maxEntries;
     }
 
-    // Getter methods (accessible to all)
     public String getId() {
         return id;
     }
 
-    public String getHashQrData(){
-        return hashQrData;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
-    public User getOrganizer(){
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public User getOrganizer() {
         return organizer;
     }
-    public int getMaxAttendees() {
-        return maxAttendees;
+
+    public void setOrganizer(User organizer) {
+        this.organizer = organizer;
     }
 
-    public String getStartDate(){
-        return startDate;
+    public int getMaxEntries() {
+        return maxEntries;
     }
 
-    public String getEndDate(){
-        return endDate;
+    public void setMaxEntries(int maxEntries) {
+        this.maxEntries = maxEntries;
     }
+
+    public boolean isCollectGeo() {
+        return collectGeo;
+    }
+
+    public void setCollectGeo(boolean collectGeo) {
+        this.collectGeo = collectGeo;
+    }
+
     public List<User> getAttendees() {
         return attendees;
     }
+
+    public void setAttendees(List<User> attendees) {
+        this.attendees = attendees;
+    }
+
     public List<User> getWaitingList() {
         return waitingList;
+    }
+
+    public void setWaitingList(List<User> waitingList) {
+        this.waitingList = waitingList;
+    }
+
+    public String getHashQrData() {
+        return hashQrData;
+    }
+
+    public void setHashQrData(String hashQrData) {
+        this.hashQrData = hashQrData;
+    }
+
+    public Timestamp getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(Timestamp eventDate) {
+        this.eventDate = eventDate;
+    }
+
+    public Timestamp getDrawDate() {
+        return drawDate;
+    }
+
+    public void setDrawDate(Timestamp drawDate) {
+        this.drawDate = drawDate;
     }
 }

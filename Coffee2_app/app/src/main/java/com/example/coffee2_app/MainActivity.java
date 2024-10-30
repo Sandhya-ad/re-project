@@ -1,13 +1,17 @@
 package com.example.coffee2_app;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.coffee2_app.databinding.ActivityMainBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -43,14 +47,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Set click listener for "Enter as Organizer" button
-//        buttonOrganizer.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Navigate to OrganizerHomeActivity when the button is clicked (create this activity)
-//                Intent intent = new Intent(MainActivity.this, OrganizerHomeActivity.class);
-//                startActivity(intent);
-//            }
-//        });
+        buttonOrganizer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to OrganizerHomeActivity when the button is clicked (create this activity)
+                Intent intent = new Intent(MainActivity.this, OrganizerHomeActivity.class);
+                startActivity(intent);
+            }
+        });
 //
 //        // Set click listener for "Enter as Admin" button
 //        buttonAdmin.setOnClickListener(new View.OnClickListener() {
@@ -77,5 +81,4 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("FirestoreCheck", "Error adding document", e);
                 });
     }
-
 }

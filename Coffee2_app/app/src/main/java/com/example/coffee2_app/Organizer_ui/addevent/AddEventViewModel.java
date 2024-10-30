@@ -2,9 +2,9 @@ package com.example.coffee2_app.Organizer_ui.addevent;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
-public class AddEventViewModel {
-
+public class AddEventViewModel extends ViewModel{
     private final MutableLiveData<String> mText;
 
     public AddEventViewModel() {
@@ -15,5 +15,4 @@ public class AddEventViewModel {
     public LiveData<String> getText() {
         return mText;
     }
-
 }

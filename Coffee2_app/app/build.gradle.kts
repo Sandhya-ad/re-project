@@ -39,6 +39,7 @@ dependencies {
     //check later for the implementation of firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
