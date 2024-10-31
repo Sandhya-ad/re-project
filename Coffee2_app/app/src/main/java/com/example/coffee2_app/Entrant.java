@@ -12,6 +12,8 @@ public class Entrant implements Serializable {
     private String email;
     private String userId;
     private String phone;
+    private Boolean adminNotification;
+    private Boolean organizerNotification;
 
     public Entrant(String userId, String name,String email,String address) {
         this.address = address;
@@ -27,6 +29,8 @@ public class Entrant implements Serializable {
     }
     public Entrant(String userId){
         this.userId = userId;
+        this.adminNotification = false;
+        this.organizerNotification = false;
         this.signedUpEvents = new ArrayList<>();  // Initialize an empty list of events
     }
 
@@ -45,6 +49,30 @@ public class Entrant implements Serializable {
     }
     public String getPhone() {
         return phone;
+    }
+    public Boolean getAdminNotification() {
+        return adminNotification;
+    }
+    public Boolean getOrganizerNotification() {
+        return organizerNotification;
+    }
+    public void setAdminNotification(Boolean adminNotification) {
+        this.adminNotification = adminNotification;;
+        if (userId != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(userId)
+                    .update("entrant.adminNotification", this.adminNotification);
+        }
+
+    }
+
+    public void setOrganizerNotification(Boolean organizerNotification) {
+        this.organizerNotification = organizerNotification;
+        if (userId != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(userId)
+                    .update("entrant.organizerNotification", this.organizerNotification);
+        }
     }
 
     public void setPhone(String phone) {

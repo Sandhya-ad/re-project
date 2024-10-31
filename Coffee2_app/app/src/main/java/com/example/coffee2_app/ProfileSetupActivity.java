@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -21,7 +22,8 @@ public class ProfileSetupActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private String deviceID;
-    private EditText nameInput, emailInput, addressInput, phoneInput;
+    private EditText nameInput, emailInput, phoneInput;
+    private CheckBox adminNotifCheckbox, organizerNotifCheckbox;
     private ImageView profilePhoto;
     private Uri profilePhotoUri;
 
@@ -37,9 +39,10 @@ public class ProfileSetupActivity extends AppCompatActivity {
         Button selectPhotoButton = findViewById(R.id.select_photo_button);
         nameInput = findViewById(R.id.input_name);
         emailInput = findViewById(R.id.input_email);
-        addressInput = findViewById(R.id.input_address);
         phoneInput = findViewById(R.id.input_phone);
         Button saveButton = findViewById(R.id.save_button);
+        adminNotifCheckbox = findViewById(R.id.checkbox_admin_notif);
+        organizerNotifCheckbox = findViewById(R.id.checkbox_organizer_notif);
         Intent intent = getIntent();
         newEntrant = (Entrant) intent.getSerializableExtra("entrant");
         deviceID = newEntrant.getUserId();
@@ -70,9 +73,9 @@ public class ProfileSetupActivity extends AppCompatActivity {
     private void saveProfileData() {
         String name = nameInput.getText().toString().trim();
         String email = emailInput.getText().toString().trim();
-        String address = addressInput.getText().toString().trim();
         String phone = phoneInput.getText().toString().trim();
-
+        boolean receiveAdminNotif = adminNotifCheckbox.isChecked();
+        boolean receiveOrganizerNotif = organizerNotifCheckbox.isChecked();
         if (name.isEmpty() || email.isEmpty()) {
             Toast.makeText(this, "Name and email are required", Toast.LENGTH_SHORT).show();
             return;
@@ -84,9 +87,8 @@ public class ProfileSetupActivity extends AppCompatActivity {
         if (phone!=null){
             newEntrant.setPhone(phone);
         }
-        if (address!=null) {
-            newEntrant.setAddress(address);
-        }
+        newEntrant.setAdminNotification(receiveAdminNotif);
+        newEntrant.setOrganizerNotification(receiveOrganizerNotif);
 
         //newEntrant.setPhotoUri(profilePhotoUri != null ? profilePhotoUri.toString() : null); // Optional photo URI
         redirectToHome(newEntrant);

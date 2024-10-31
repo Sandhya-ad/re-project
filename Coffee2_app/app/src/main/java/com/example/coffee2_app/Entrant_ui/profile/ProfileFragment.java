@@ -74,9 +74,8 @@ public class ProfileFragment extends Fragment {
 
     private void displayEntrantDetails() {
         binding.entrantName.setText(entrant.getName());
-        binding.entrantEmail.setText(entrant.getEmail());
-        binding.entrantAddress.setText(entrant.getAddress());
         binding.entrantPhone.setText(entrant.getPhone());
+        binding.entrantEmail.setText(entrant.getEmail());
     }
 
     private void toggleEditMode() {
@@ -89,13 +88,11 @@ public class ProfileFragment extends Fragment {
 
     private void setEditMode(boolean enabled) {
         binding.entrantName.setEnabled(enabled);
-        binding.entrantAddress.setEnabled(enabled);
         binding.entrantEmail.setEnabled(enabled);
         binding.entrantPhone.setEnabled(enabled);
 
         int bgColor = enabled ? getResources().getColor(android.R.color.background_light) : getResources().getColor(android.R.color.transparent);
         binding.entrantName.setBackgroundColor(bgColor);
-        binding.entrantAddress.setBackgroundColor(bgColor);
         binding.entrantEmail.setBackgroundColor(bgColor);
         binding.entrantPhone.setBackgroundColor(bgColor);
     }
@@ -114,26 +111,37 @@ public class ProfileFragment extends Fragment {
         CheckBox adminCheckBox = dialogView.findViewById(R.id.checkbox_admin);
         CheckBox organizerCheckBox = dialogView.findViewById(R.id.checkbox_organizer);
 
+        // Set checkbox states based on entrant's notification preferences
+        if (entrant != null) {
+            adminCheckBox.setChecked(entrant.getAdminNotification());
+            organizerCheckBox.setChecked(entrant.getOrganizerNotification());
+        }
+
         builder.setPositiveButton("Save", (dialog, which) -> {
             boolean receiveFromAdmin = adminCheckBox.isChecked();
+            entrant.setAdminNotification(receiveFromAdmin);
             boolean receiveFromOrganizer = organizerCheckBox.isChecked();
+            entrant.setOrganizerNotification(receiveFromOrganizer);
             Toast.makeText(getActivity(), "Notification preferences saved.", Toast.LENGTH_SHORT).show();
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dlg -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(android.R.color.black));
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(android.R.color.black));
+        });
+        dialog.show();
     }
 
     private void saveProfileData() {
         String name = binding.entrantName.getText().toString().trim();
-        String address = binding.entrantAddress.getText().toString().trim();
         String email = binding.entrantEmail.getText().toString().trim();
         String phone = binding.entrantPhone.getText().toString().trim();
 
         // Update Entrant instance and Firestore
         entrant.setName(name);
         entrant.setEmail(email);
-        entrant.setAddress(address);
         entrant.setPhone(phone);
 
     }
