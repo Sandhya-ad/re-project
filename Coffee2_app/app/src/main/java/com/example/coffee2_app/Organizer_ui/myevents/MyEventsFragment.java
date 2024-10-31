@@ -43,7 +43,7 @@ public class MyEventsFragment extends Fragment {
         // Set up RecyclerView
         binding.viewEventList.setLayoutManager(new LinearLayoutManager(getContext())); // Use binding to access the RecyclerView
         eventList = new ArrayList<>();
-        eventsAdapter = new EventsAdapter(eventList); // Your custom adapter
+        eventsAdapter = new EventsAdapter(eventList, this); // Your custom adapter
         binding.viewEventList.setAdapter(eventsAdapter); // Use binding to set the adapter
 
         // Find the Back Button from the layout
