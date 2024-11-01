@@ -43,4 +43,13 @@
     <string name="images">Images</string>
     <string name="user_profiles">User Profiles</string>
     <string name="facilities">Facilities</string>
+    <string name="facility">Facility</string>
+    <string name="enter_facility_name">Enter Facility Name...</string>
+    <string name="organizer_profile">Organizer Profile</string>
+    <string name="enter_phone_number_2">Enter Phone Number</string>
+    <string name="enter_email_address">Enter Email Address</string>
+    <string name="enter_address_2">Enter Address</string>
+    <string name="back_string">Back</string>
+    <string name="enter_max_entrants">Enter Max Entrants</string>
+    <string name="event_date_string">Event Date</string>
 </resources>

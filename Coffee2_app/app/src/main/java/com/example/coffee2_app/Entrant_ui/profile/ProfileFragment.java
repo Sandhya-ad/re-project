@@ -1,5 +1,6 @@
 package com.example.coffee2_app.Entrant_ui.profile;
 
+
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -13,65 +14,92 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.coffee2_app.Entrant;
+import com.example.coffee2_app.EntrantHomeActivity;
 import com.example.coffee2_app.R;
-import com.example.coffee2_app.databinding.FragmentProfileBinding;
+import com.example.coffee2_app.databinding.FragmentEntrantProfileBinding;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProfileFragment extends Fragment {
-
     private static final int PICK_IMAGE_REQUEST = 1;
-    private FragmentProfileBinding binding;
+
+    private Entrant entrant;
+    private FragmentEntrantProfileBinding binding;
     private boolean isEditing = false;
+    private FirebaseFirestore db;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
-        binding = FragmentProfileBinding.inflate(inflater, container, false);
+        binding = FragmentEntrantProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        // Hide Save Button by default
-        binding.editProfileButton.setVisibility(View.GONE);
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
 
-        // Back button listener
-        binding.backButton.setOnClickListener(v -> getActivity().onBackPressed());
+        EntrantHomeActivity activity = (EntrantHomeActivity) getActivity();
+        if (activity != null) {
+            entrant = activity.getEntrant();  // Get the Entrant instance
+        }
 
-        // Edit icon click listener to enter edit mode
-        binding.editProfileIcon.setOnClickListener(view -> toggleEditMode());
+        if (entrant != null) {
+            displayEntrantDetails();  // Populate fields with Entrant data
+        } else {
+            Toast.makeText(getActivity(), "Error: Entrant data is missing.", Toast.LENGTH_SHORT).show();
+        }
 
-        // Save button click listener to save profile data
+        // Save Button functionality
+        binding.editProfileButton.setVisibility(View.GONE);  // Hide by default
         binding.editProfileButton.setOnClickListener(view -> {
-            saveProfileData();
-            toggleEditMode(); // Exit edit mode after saving
-        });
-
-        // Profile picture click listener, only triggers in edit mode
-        binding.profilePicture.setOnClickListener(view -> {
-            if (isEditing) {
-                openImagePicker();
+            if (entrant != null) {
+                saveProfileData();
+                toggleEditMode();  // Exit edit mode
             }
         });
 
-        // Notification settings button click listener
+        binding.editProfileIcon.setOnClickListener(view -> toggleEditMode());
+        binding.backButton.setOnClickListener(v -> getActivity().onBackPressed());
+
+        // Profile picture click listener
+        binding.profilePicture.setOnClickListener(view -> {
+            if (isEditing) openImagePicker();
+        });
+
+        // Notification settings button listener
         binding.notificationSettingsButton.setOnClickListener(view -> showNotificationSettingsDialog());
 
         return root;
     }
 
+    private void displayEntrantDetails() {
+        binding.entrantName.setText(entrant.getName());
+        binding.entrantPhone.setText(entrant.getPhone());
+        binding.entrantEmail.setText(entrant.getEmail());
+    }
+
+    private void toggleEditMode() {
+        isEditing = !isEditing;
+        binding.editProfileButton.setVisibility(isEditing ? View.VISIBLE : View.GONE);
+        binding.editProfileIcon.setVisibility(isEditing ? View.GONE : View.VISIBLE);
+        binding.notificationSettingsButton.setVisibility(isEditing ? View.GONE : View.VISIBLE);
+        setEditMode(isEditing);
+    }
+
+    private void setEditMode(boolean enabled) {
+        binding.entrantName.setEnabled(enabled);
+        binding.entrantEmail.setEnabled(enabled);
+        binding.entrantPhone.setEnabled(enabled);
+
+        int bgColor = enabled ? getResources().getColor(android.R.color.background_light) : getResources().getColor(android.R.color.transparent);
+        binding.entrantName.setBackgroundColor(bgColor);
+        binding.entrantEmail.setBackgroundColor(bgColor);
+        binding.entrantPhone.setBackgroundColor(bgColor);
+    }
+
     private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == getActivity().RESULT_OK && data != null) {
-            Uri selectedImageUri = data.getData();
-            if (selectedImageUri != null) {
-                binding.profilePicture.setImageURI(selectedImageUri);
-                // Save the selected image URI to a database or cloud storage if needed
-            }
-        }
     }
 
     private void showNotificationSettingsDialog() {
@@ -83,67 +111,39 @@ public class ProfileFragment extends Fragment {
         CheckBox adminCheckBox = dialogView.findViewById(R.id.checkbox_admin);
         CheckBox organizerCheckBox = dialogView.findViewById(R.id.checkbox_organizer);
 
+        // Set checkbox states based on entrant's notification preferences
+        if (entrant != null) {
+            adminCheckBox.setChecked(entrant.getAdminNotification());
+            organizerCheckBox.setChecked(entrant.getOrganizerNotification());
+        }
+
         builder.setPositiveButton("Save", (dialog, which) -> {
             boolean receiveFromAdmin = adminCheckBox.isChecked();
+            entrant.setAdminNotification(receiveFromAdmin);
             boolean receiveFromOrganizer = organizerCheckBox.isChecked();
+            entrant.setOrganizerNotification(receiveFromOrganizer);
             Toast.makeText(getActivity(), "Notification preferences saved.", Toast.LENGTH_SHORT).show();
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-
         AlertDialog dialog = builder.create();
-        dialog.setCancelable(true);
+        dialog.setOnShowListener(dlg -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(android.R.color.black));
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(android.R.color.black));
+        });
         dialog.show();
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(android.R.color.black));
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(android.R.color.black));
-    }
-
-    private void toggleEditMode() {
-        isEditing = !isEditing;
-
-        if (isEditing) {
-            // Enter edit mode, show Save button
-            setEditMode(true);
-            binding.editProfileButton.setVisibility(View.VISIBLE); // Show Save button
-        } else {
-            // Exit edit mode, hide Save button
-            setEditMode(false);
-            binding.editProfileButton.setVisibility(View.GONE); // Hide Save button
-        }
-
-        // Enable or disable profile picture click based on edit mode
-        binding.profilePicture.setClickable(isEditing);
-    }
-
-    private void setEditMode(boolean enabled) {
-        binding.entrantName.setEnabled(enabled);
-        binding.entrantAddress.setEnabled(enabled);
-        binding.entrantEmail.setEnabled(enabled);
-        binding.entrantPhone.setEnabled(enabled);
-
-        int bgColor = enabled ? getResources().getColor(android.R.color.background_light) : getResources().getColor(android.R.color.transparent);
-
-        binding.entrantName.setBackgroundColor(bgColor);
-        binding.entrantAddress.setBackgroundColor(bgColor);
-        binding.entrantEmail.setBackgroundColor(bgColor);
-        binding.entrantPhone.setBackgroundColor(bgColor);
-
-        if (enabled) {
-            binding.entrantName.requestFocus();
-        }
     }
 
     private void saveProfileData() {
         String name = binding.entrantName.getText().toString().trim();
-        String address = binding.entrantAddress.getText().toString().trim();
         String email = binding.entrantEmail.getText().toString().trim();
         String phone = binding.entrantPhone.getText().toString().trim();
-        //Just to check before the db is implemented
-        String message = "Profile saved:\nName: " + name + "\nAddress: " + address +
-                "\nEmail: " + email + "\nPhone: " + (phone.isEmpty() ? "Not provided" : phone);
 
-        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+        // Update Entrant instance and Firestore
+        entrant.setName(name);
+        entrant.setEmail(email);
+        entrant.setPhone(phone);
+
     }
 
     @Override

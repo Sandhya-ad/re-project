@@ -113,25 +113,6 @@
             android:backgroundTint="@android:color/transparent"
             android:textColor="@color/black" />
 
-        <!-- Address -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Address"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="4dp" />
-
-        <EditText
-            android:id="@+id/entrant_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="1234 Elm Street"
-            android:enabled="false"
-            android:backgroundTint="@android:color/transparent"
-            android:textColor="@color/black" />
 
         <!-- Email -->
         <TextView

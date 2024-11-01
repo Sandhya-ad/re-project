@@ -25,7 +25,7 @@
 
             <!-- Event Title -->
             <TextView
-                android:id="@+id/event_title"
+                android:id="@+id/event_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/event_title"
@@ -42,9 +42,29 @@
                 android:text="@string/event_date"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="14sp" />
+
+            <!-- Draw Date -->
+            <TextView
+                android:id="@+id/event_draw_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Draw Date"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="14sp" />
+
+            <!-- Entries -->
+            <TextView
+                android:id="@+id/event_entries"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Max Entries"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="14sp" />
         </LinearLayout>
 
-        <!-- STATUS text is to update later in code -->
+        <!-- STATUS text is to update later in code
         <TextView
             android:id="@+id/event_status"
             android:layout_width="match_parent"
@@ -54,10 +74,7 @@
             android:layout_marginEnd="15dp"
             android:text="@string/status"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold" /> -->
 
     </LinearLayout>
-
-
 </androidx.cardview.widget.CardView>
-

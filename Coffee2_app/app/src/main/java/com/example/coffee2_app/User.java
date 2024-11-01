@@ -1,52 +1,76 @@
 package com.example.coffee2_app;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class User implements Serializable {
-    //Does not have a profile picture yet
-
-    private String userId; //Later set the userID to the deviceID
-    // private String name; // Moving these into the classes themselves
-    // private String email; // Moving these into the classes themselves
-    // private Boolean isAdmin;//Instead of having a set of roles, we could just have isAdmin or not
-    private Set<String> roles;  // Set of roles like "entrant", "organizer", "admin"
-
-    // Constructor
-    /*
-    public User(String userId, String name, String email) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.roles = new HashSet<>();
-        this.roles.add("entrant");  // Default role is 'entrant'
-    }*/
+    private boolean isAdmin;
+    private String userId;
+    private List<String> roles;  // List of roles like "entrant", "organizer", "admin"
+    private Entrant entrant;
+    private Organizer organizer;
 
     // Constructor
     public User(String userId) {
         this.userId = userId;
-        this.roles = new HashSet<>();
+        this.roles = new ArrayList<>();
+        this.isAdmin = false; //default is false
+        addRole("entrant"); // Default role
+    }
+    public User() {
+        this.roles = new ArrayList<>();
     }
 
-    // Getters and Setters
-    public String getUserId() {
-        return userId;
+
+    // Role-checking methods
+    public boolean hasEntrantRole() {
+        return roles.contains("entrant");
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public boolean hasOrganizerRole() {
+        return roles.contains("organizer");
     }
 
-    public Set<String> getRoles() {
-        return roles;
+    // Entrant-specific access
+    public Entrant getEntrant() {
+        return hasEntrantRole() ? entrant : null;
+    }
+    public void setAdmin(){
+        isAdmin = true;
+    }
+    public boolean getisAdmin(){
+        return isAdmin;
     }
 
+    // Organizer-specific access
+    public Organizer getOrganizer() {
+        return hasOrganizerRole() ? organizer : null;
+    }
+
+    // Getters and Setters for common fields
+    public String getUserId() { return userId; }
+    public List<String> getRoles() { return roles; }
+
+    // Role management methods
     public void addRole(String role) {
-        this.roles.add(role);
+        if (!roles.contains(role)) {  // Only add if the role isn't already present
+            roles.add(role);
+            if (role.equals("entrant")) {
+                entrant = new Entrant(userId);
+            } else if (role.equals("organizer")) {
+                organizer = new Organizer(userId);
+            }
+        }
     }
 
     public void removeRole(String role) {
-        this.roles.remove(role);
+        if (roles.remove(role)) {  // Only remove if the role was present
+            if (role.equals("entrant")) {
+                entrant = null;
+            } else if (role.equals("organizer")) {
+                organizer = null;
+            }
+        }
     }
 }
