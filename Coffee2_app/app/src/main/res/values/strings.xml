@@ -38,4 +38,9 @@
     <string name="event_date">Event Date</string>
     <string name="event_title">Event Title</string>
     <string name="my_profile">My Profile</string>
+    <string name="events">Events</string>
+    <string name="profiles">Profiles</string>
+    <string name="images">Images</string>
+    <string name="user_profiles">User Profiles</string>
+    <string name="facilities">Facilities</string>
 </resources>
