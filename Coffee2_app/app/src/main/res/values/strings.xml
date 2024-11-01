@@ -52,4 +52,7 @@
     <string name="back_string">Back</string>
     <string name="enter_max_entrants">Enter Max Entrants</string>
     <string name="event_date_string">Event Date</string>
+    <string name="description">Description</string>
+    <string name="enter_description">Enter Description...</string>
+    <string name="set_date">Set Date</string>
 </resources>

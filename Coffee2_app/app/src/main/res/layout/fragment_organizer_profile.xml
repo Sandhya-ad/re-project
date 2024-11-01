@@ -41,7 +41,7 @@
                 android:layout_marginStart="8dp"
                 android:background="@drawable/rounded_text_background"
                 android:padding="8dp"
-                android:text="@string/organizer_profile"
+                android:text="@string/facility_profile"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -117,13 +117,6 @@
             android:layout_marginTop="32dp"
             android:backgroundTint="@color/main_blue"/>
 
-        <Button
-            android:id="@+id/edit_facility_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="My Facility"
-            android:layout_marginTop="32dp"
-            android:backgroundTint="@color/main_blue"/>
 
     </LinearLayout>
 </LinearLayout>

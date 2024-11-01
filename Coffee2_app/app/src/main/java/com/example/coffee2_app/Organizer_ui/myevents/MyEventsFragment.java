@@ -1,6 +1,7 @@
 package com.example.coffee2_app.Organizer_ui.myevents;
 
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +13,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.coffee2_app.EntrantHomeActivity;
 import com.example.coffee2_app.Event;
 import com.example.coffee2_app.EventsAdapter;
+import com.example.coffee2_app.Organizer;
+import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.User;
 import com.example.coffee2_app.databinding.FragmentMyEventsBinding;
@@ -26,6 +30,7 @@ import java.util.List;
 
 public class MyEventsFragment extends Fragment {
 
+    private Organizer organizer;
     private FragmentMyEventsBinding binding;
     private FirebaseFirestore db;
     private RecyclerView recyclerView;
@@ -37,8 +42,20 @@ public class MyEventsFragment extends Fragment {
         binding = FragmentMyEventsBinding.inflate(inflater, container, false); // Initialize binding
         View root = binding.getRoot();
 
+        OrganizerHomeActivity activity = (OrganizerHomeActivity) getActivity();
+        if (activity != null) {
+            organizer = activity.getOrganizer();  // Get the Entrant instance
+        }
+
+        if (organizer != null) {
+            //displayEntrantDetails();  // Populate fields with Entrant data
+        } else {
+            Toast.makeText(getActivity(), "Error: Organizer data is missing.", Toast.LENGTH_SHORT).show();
+        }
+
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
+
 
         // Set up RecyclerView
         binding.viewEventList.setLayoutManager(new LinearLayoutManager(getContext())); // Use binding to access the RecyclerView
@@ -64,16 +81,15 @@ public class MyEventsFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            String id = "";
                             String name = document.getString("name");
-                            User organizer = new User("");
+                            Organizer organizer = new Organizer("");
                             int maxEntries = document.getLong("entriesLimit").intValue();
                             boolean collectGeo = document.getBoolean("collectGeoStatus");
                             String hashQRData = "";
                             Timestamp eventDate = document.getTimestamp("eventDate");
                             Timestamp drawDate = document.getTimestamp("drawDate");
 
-                            Event event = new Event(id, name, organizer, maxEntries, collectGeo, hashQRData, eventDate, drawDate);
+                            Event event = new Event(name, organizer.getName(), maxEntries, collectGeo, hashQRData, eventDate, drawDate);
                             eventList.add(event);
                         }
                         eventsAdapter.notifyDataSetChanged(); // Notify the adapter that data has changed
