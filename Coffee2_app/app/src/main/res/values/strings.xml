@@ -55,4 +55,5 @@
     <string name="description">Description</string>
     <string name="enter_description">Enter Description...</string>
     <string name="set_date">Set Date</string>
+    <string name="edit_profile">Edit Profile</string>
 </resources>

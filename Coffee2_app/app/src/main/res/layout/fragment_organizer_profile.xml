@@ -54,15 +54,37 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/organizer_image"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/ic_account_circle_24"
-            android:contentDescription="Profile Picture"
-            android:clickable="true"
-            android:focusable="true"/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp">
+
+            <ImageButton
+                android:id="@+id/edit_profile_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/edit_profile"
+                android:padding="8dp"
+                android:src="@drawable/ic_edit" />
+
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/organizer_image"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:minWidth="120dp"
+                android:minHeight="120dp"
+                android:src="@drawable/ic_building"
+                app:shapeAppearanceOverlay="@style/circleImage" />
+
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
@@ -77,6 +99,8 @@
             android:layout_height="wrap_content"
             android:hint="@string/enter_name"
             android:inputType="text"
+            android:enabled="false"
+            android:backgroundTint="@android:color/transparent"
             android:minHeight="32dp"/>
 
         <TextView
@@ -92,25 +116,28 @@
             android:layout_height="wrap_content"
             android:hint="@string/enter_email"
             android:inputType="textEmailAddress"
+            android:enabled="false"
+            android:backgroundTint="@android:color/transparent"
             android:minHeight="32dp"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/phone_number"
+            android:text="@string/address"
             android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/organizer_phone"
+            android:id="@+id/organizer_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/enter_phone_number"
-            android:inputType="phone"
+            android:hint="@string/enter_address"
+            android:enabled="false"
+            android:backgroundTint="@android:color/transparent"
             android:minHeight="32dp"/>
 
         <Button
-            android:id="@+id/edit_profile_button"
+            android:id="@+id/save_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/save"
