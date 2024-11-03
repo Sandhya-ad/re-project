@@ -12,7 +12,7 @@
     <string name="enter_address">Enter Address...</string>
     <string name="enter_email">Enter Email...</string>
     <string name="email">Email</string>
-    <string name="phone_number">Phone Number</string>
+    <string name="phone_number">Phone Number...</string>
     <string name="enter_phone_number">Enter Phone Number...</string>
     <string name="save">Save</string>
     <string name="placeholder_event_title">Event Title</string>
@@ -28,7 +28,9 @@
     <string name="event_name">Event Name</string>
     <string name="date">Date</string>
     <string name="date_here">Date Here</string>
+    <string name="edit">Edit</string>
     <string name="draw_date">Draw Date</string>
+    <string name="enter_number">Enter Number...</string>
     <string name="max_entries">Max Entries</string>
     <string name="enable_geolocation">Enable Geolocation</string>
     <string name="publish_event">Publish Event</string>
@@ -36,6 +38,11 @@
     <string name="event_date">Event Date</string>
     <string name="event_title">Event Title</string>
     <string name="my_profile">My Profile</string>
+    <string name="events">Events</string>
+    <string name="profiles">Profiles</string>
+    <string name="images">Images</string>
+    <string name="user_profiles">User Profiles</string>
+    <string name="facilities">Facilities</string>
     <string name="facility">Facility</string>
     <string name="enter_facility_name">Enter Facility Name...</string>
     <string name="organizer_profile">Organizer Profile</string>
@@ -45,4 +52,8 @@
     <string name="back_string">Back</string>
     <string name="enter_max_entrants">Enter Max Entrants</string>
     <string name="event_date_string">Event Date</string>
+    <string name="description">Description</string>
+    <string name="enter_description">Enter Description...</string>
+    <string name="set_date">Set Date</string>
+    <string name="edit_profile">Edit Profile</string>
 </resources>

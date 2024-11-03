@@ -6,6 +6,11 @@
         <item name="colorAccent">@color/white</item>
     </style>
 
+    <style name="circleImage" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
     <style name="CustomDatePickerDialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorAccent">@color/blue</item>
         <item name="android:textColorPrimary">@android:color/black</item>

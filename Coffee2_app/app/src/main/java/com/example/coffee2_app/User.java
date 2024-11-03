@@ -17,6 +17,7 @@ public class User implements Serializable {
         this.roles = new ArrayList<>();
         this.isAdmin = false; //default is false
         addRole("entrant"); // Default role
+        addRole("organizer");
     }
     public User() {
         this.roles = new ArrayList<>();

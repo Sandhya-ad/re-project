@@ -67,7 +67,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         buttonOrganizer.setOnClickListener(v -> {
+            //currentUser.addRole("organizer");
+            if(currentUser.getOrganizer() == null) {Log.e("test", "null");}
             Intent intent = new Intent(MainActivity.this, OrganizerHomeActivity.class);
+            intent.putExtra("organizer", currentUser.getOrganizer());
+            intent.putExtra("deviceID", deviceID);
             startActivity(intent);
         });
     }
