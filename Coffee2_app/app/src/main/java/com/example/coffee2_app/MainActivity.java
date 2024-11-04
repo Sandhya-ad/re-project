@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         Button buttonOrganizer = findViewById(R.id.button_enter_organizer);
         Button buttonAdmin = findViewById(R.id.button_enter_admin);
 
-        // Initially hide the Admin button until we confirm user getisAdmin status
+        // Initially hide the Admin button until we confirm user getIsAdmin status
         buttonAdmin.setVisibility(View.GONE);
 
         if (deviceID != null) {
@@ -40,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
                 // Enable buttons only after currentUser is fully initialized
                 currentUser = newUser;
                 setupButtonListeners(buttonEntrant, buttonOrganizer, buttonAdmin);
-                Log.e("Admin", currentUser.getisAdmin() + "");
-                if (currentUser.getisAdmin()) {
+                Log.e("Admin", currentUser.getIsAdmin() + "");
+                if (currentUser.getIsAdmin()) {
                     buttonAdmin.setVisibility(View.VISIBLE);
                 }
             });
@@ -87,8 +87,8 @@ public class MainActivity extends AppCompatActivity {
                     User user = document.toObject(User.class);
                     Log.d("Firestore", "User loaded: " + user);
 
-                    // Debug log for getisAdmin to verify its value
-                    Log.d("AdminCheck", "User loaded with getisAdmin: " + user.getisAdmin());
+                    // Debug log for getIsAdmin to verify its value
+                    Log.d("AdminCheck", "User loaded with getIsAdmin: " + user.getIsAdmin());
 
                     callback.onUserLoaded(user);
                 } else {
