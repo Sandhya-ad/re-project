@@ -20,7 +20,7 @@ public class Admin {
     private static final String IMAGES_COLLECTION = "images";
     private static final String FACILITIES_COLLECTION = "facilities";
 
-    // Method to browse all events
+    // Method to browse all event
     public void browseEvents(final FirebaseCallback<List<Event>> callback) {
         db.collection(EVENTS_COLLECTION).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
