@@ -84,7 +84,15 @@ public class ProfileSetupActivity extends AppCompatActivity {
         // Create Entrant instance with all data
         newEntrant.setName(name);
         newEntrant.setEmail(email);
-        if (phone!=null){
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!phone.isEmpty() && !phone.matches("\\d{10}")) {
+            Toast.makeText(this, "Phone number must be exactly 10 digits", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(!phone.isEmpty()){
             newEntrant.setPhone(phone);
         }
         newEntrant.setAdminNotification(receiveAdminNotif);

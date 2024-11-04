@@ -135,15 +135,37 @@ public class ProfileFragment extends Fragment {
     }
 
     private void saveProfileData() {
+        String originalName = entrant.getName();
+        String originalEmail = entrant.getEmail();
+        String originalPhone = entrant.getPhone();
+
         String name = binding.entrantName.getText().toString().trim();
         String email = binding.entrantEmail.getText().toString().trim();
         String phone = binding.entrantPhone.getText().toString().trim();
+        // Validate email format
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(getActivity(), "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+            resetUI(originalName, originalEmail, originalPhone);
+            return;
+        }
 
-        // Update Entrant instance and Firestore
+        // Validate phone number (must be exactly 10 digits)
+        if (!phone.isEmpty() && !phone.matches("\\d{10}")) {
+            Toast.makeText(getActivity(), "Phone number must be exactly 10 digits", Toast.LENGTH_SHORT).show();
+            resetUI(originalName, originalEmail, originalPhone);
+            return;
+        }
+            // Update Entrant instance and Firestore
         entrant.setName(name);
         entrant.setEmail(email);
         entrant.setPhone(phone);
 
+    }
+    private void resetUI(String name, String email, String phone) {
+        // Revert the UI to original values if validation fails
+        binding.entrantName.setText(name);
+        binding.entrantEmail.setText(email);
+        binding.entrantPhone.setText(phone);
     }
 
     @Override
