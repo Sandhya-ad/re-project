@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +19,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.coffee2_app.EntrantHomeActivity;
+import com.example.coffee2_app.MainActivity;
 import com.example.coffee2_app.Organizer;
 import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
@@ -83,7 +85,9 @@ public class ProfileFragment extends Fragment {
         });
 
         binding.saveButton.setOnClickListener(view -> {
-            saveProfileData();
+            //saveProfileData();
+            //PopupMenu popupMenu = new PopupMenu(ProfileFragment.this, view);
+            
         });
 
         return root;
