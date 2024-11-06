@@ -30,7 +30,7 @@
         </activity>
         <activity android:name=".EntrantHomeActivity" />
         <activity android:name=".ProfileSetupActivity" />
-
+        <activity android:name=".AdminHomeActivity"/>
         <activity android:name=".OrganizerHomeActivity" />
 
     </application>
