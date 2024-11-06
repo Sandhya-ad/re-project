@@ -1,122 +1,105 @@
 package com.example.coffee2_app;
 
 
-
+import com.example.coffee2_app.Facility;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import android.util.Log;
-import androidx.annotation.NonNull;
-import java.util.ArrayList;
 import java.util.List;
+import android.util.Log;
 
 public class Admin {
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private static final String EVENTS_COLLECTION = "events";
-    private static final String PROFILES_COLLECTION = "profiles";
-    private static final String IMAGES_COLLECTION = "images";
-    private static final String FACILITIES_COLLECTION = "facilities";
+    private static final String TAG = "Admin";
+    private FirebaseFirestore db;
 
-    // Method to browse all event
-    public void browseEvents(final FirebaseCallback<List<Event>> callback) {
-        db.collection(EVENTS_COLLECTION).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    List<Event> eventList = new ArrayList<>();
-                    for (DocumentSnapshot document : task.getResult()) {
-                        Event event = document.toObject(Event.class);
-                        eventList.add(event);
-                    }
-                    callback.onCallback(eventList);
-                } else {
-                    Log.w("Admin", "Error getting events.", task.getException());
-                    callback.onCallback(null);
-                }
+    public Admin() {
+        db = FirebaseFirestore.getInstance();
+    }
+
+    // Interface for data fetch callbacks
+    public interface OnDataFetchedListener<T> {
+        void onDataFetched(List<T> data);
+        void onError(Exception e);
+    }
+
+    // Browse Events
+    public void browseEvents(OnDataFetchedListener<Event> listener) {
+        CollectionReference eventsRef = db.collection("events");
+        eventsRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<Event> events = task.getResult().toObjects(Event.class);
+                listener.onDataFetched(events);
+            } else {
+                listener.onError(task.getException());
             }
         });
     }
 
-    // Method to remove an event by its document ID
-    public void removeEvent(String eventId, final FirebaseCallback<Boolean> callback) {
-        db.collection(EVENTS_COLLECTION).document(eventId).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                callback.onCallback(task.isSuccessful());
+    // Browse Profiles
+    public void browseProfiles(OnDataFetchedListener<Profile> listener) {
+        CollectionReference profilesRef = db.collection("profiles");
+        profilesRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<Profile> profiles = task.getResult().toObjects(Profile.class);
+                listener.onDataFetched(profiles);
+            } else {
+                listener.onError(task.getException());
             }
         });
     }
 
-    // Method to browse user profiles
-    public void browseProfiles(final FirebaseCallback<List<Profile>> callback) {
-        db.collection(PROFILES_COLLECTION).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    List<Profile> profileList = new ArrayList<>();
-                    for (DocumentSnapshot document : task.getResult()) {
-                        Profile profile = document.toObject(Profile.class);
-                        profileList.add(profile);
-                    }
-                    callback.onCallback(profileList);
-                } else {
-                    Log.w("Admin", "Error getting profiles.", task.getException());
-                    callback.onCallback(null);
-                }
+    // Browse Images
+    public void browseImages(OnDataFetchedListener<Image> listener) {
+        CollectionReference imagesRef = db.collection("images");
+        imagesRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<Image> images = task.getResult().toObjects(Image.class);
+                listener.onDataFetched(images);
+            } else {
+                listener.onError(task.getException());
             }
         });
     }
 
-    // Method to remove a profile by its document ID
-    public void removeProfile(String profileId, final FirebaseCallback<Boolean> callback) {
-        db.collection(PROFILES_COLLECTION).document(profileId).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                callback.onCallback(task.isSuccessful());
+    // Browse Facilities
+    public void browseFacilities(OnDataFetchedListener<Facility> listener) {
+        CollectionReference facilitiesRef = db.collection("facilities");
+        facilitiesRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<Facility> facilities = task.getResult().toObjects(Facility.class);
+                listener.onDataFetched(facilities);
+            } else {
+                listener.onError(task.getException());
             }
         });
     }
 
-    // Method to browse images
-    public void browseImages(final FirebaseCallback<List<Image>> callback) {
-        db.collection(IMAGES_COLLECTION).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    List<Image> imageList = new ArrayList<>();
-                    for (DocumentSnapshot document : task.getResult()) {
-                        Image image = document.toObject(Image.class);
-                        imageList.add(image);
-                    }
-                    callback.onCallback(imageList);
-                } else {
-                    Log.w("Admin", "Error getting images.", task.getException());
-                    callback.onCallback(null);
-                }
-            }
-        });
+    // Remove Event
+    public void removeEvent(String eventId) {
+        db.collection("events").document(eventId).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Event successfully deleted!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error deleting event", e));
     }
 
-    // Method to remove an image by its document ID
-    public void removeImage(String imageId, final FirebaseCallback<Boolean> callback) {
-        db.collection(IMAGES_COLLECTION).document(imageId).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                callback.onCallback(task.isSuccessful());
-            }
-        });
+    // Remove Profile
+    public void removeProfile(String profileId) {
+        db.collection("profiles").document(profileId).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Profile successfully deleted!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error deleting profile", e));
     }
 
-    // Method to remove facilities that violate app policies by document ID
-    public void removeFacility(String facilityId, final FirebaseCallback<Boolean> callback) {
-        db.collection(FACILITIES_COLLECTION).document(facilityId).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                callback.onCallback(task.isSuccessful());
-            }
-        });
+    // Remove Image
+    public void removeImage(String imageId) {
+        db.collection("images").document(imageId).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Image successfully deleted!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error deleting image", e));
+    }
+
+    // Remove Facility
+    public void removeFacility(String facilityId) {
+        db.collection("facilities").document(facilityId).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Facility successfully deleted!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error deleting facility", e));
     }
 }
