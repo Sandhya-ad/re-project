@@ -1,5 +1,7 @@
 package com.example.coffee2_app;
 
+import android.graphics.Bitmap;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -11,10 +13,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class Organizer implements Serializable {
 
@@ -23,6 +28,7 @@ public class Organizer implements Serializable {
     private String address;
     private String email;
     private String userID;
+    private String imageID;
 
     /**
      * Constructor class for the Organization
@@ -142,6 +148,27 @@ public class Organizer implements Serializable {
     public String getUserID() {
         return userID;
     }
+
+    public void setImage(Bitmap bitmap) {
+        ByteArrayOutputStream converter = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, converter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String encodedBmp = Base64.getEncoder().encodeToString(converter.toByteArray());
+            if (encodedBmp != null) {
+                this.imageID = UUID.nameUUIDFromBytes(encodedBmp.getBytes()).toString();
+                Log.d("ProfilePhoto", this.imageID);
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection("images").document(imageID).set(encodedBmp);
+            }
+            else {
+                System.err.println("Could not upload image.");
+            }
+        }
+        else {
+            Log.d("ImageTest", "Permission Error");
+        }
+    }
+
 
     /*
     public void sync() {

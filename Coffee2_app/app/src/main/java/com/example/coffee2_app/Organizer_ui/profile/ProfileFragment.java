@@ -2,11 +2,13 @@ package com.example.coffee2_app.Organizer_ui.profile;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -19,12 +21,16 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.coffee2_app.EntrantHomeActivity;
+import com.example.coffee2_app.Image;
+import com.example.coffee2_app.ImageGenerator;
 import com.example.coffee2_app.MainActivity;
 import com.example.coffee2_app.Organizer;
 import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentOrganizerProfileBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.io.IOException;
 
 public class ProfileFragment extends Fragment {
 
@@ -34,6 +40,7 @@ public class ProfileFragment extends Fragment {
     private boolean isEditing = false;
     private FirebaseFirestore db;
     private String deviceID;
+    private Bitmap bmp;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -80,14 +87,38 @@ public class ProfileFragment extends Fragment {
         // Profile picture click listener, only triggers in edit mode
         binding.organizerImage.setOnClickListener(view -> {
             if (isEditing) {
-                openImagePicker();
+                PopupMenu popupMenu = new PopupMenu(this.getContext(), view);
+                popupMenu.getMenuInflater().inflate(R.menu.image_menu, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (item.getItemId() == R.id.choose_image) {
+                            openImagePicker();
+                            return true;
+                        }
+                        else if (item.getItemId() == R.id.remove_image) {
+                            ImageGenerator gen;
+                            if (organizer.getName() != null) {
+                                gen = new ImageGenerator(organizer.getName());
+                            }
+                            else {
+                                gen = new ImageGenerator("User");
+                            }
+                            binding.organizerImage.setImageBitmap(gen.getImg());
+                            bmp = gen.getImg();
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                });
+                popupMenu.show();
             }
         });
 
         binding.saveButton.setOnClickListener(view -> {
-            //saveProfileData();
-            //PopupMenu popupMenu = new PopupMenu(ProfileFragment.this, view);
-            
+            saveProfileData();
         });
 
         return root;
@@ -113,8 +144,12 @@ public class ProfileFragment extends Fragment {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == getActivity().RESULT_OK && data != null) {
             Uri selectedImageUri = data.getData();
             if (selectedImageUri != null) {
-                binding.organizerImage.setImageURI(selectedImageUri);
-                // Save the selected image URI to a database or cloud storage if needed
+                try {
+                    bmp = MediaStore.Images.Media.getBitmap(this.getContext().getContentResolver(), selectedImageUri);
+                    binding.organizerImage.setImageBitmap(bmp);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -168,6 +203,10 @@ public class ProfileFragment extends Fragment {
         organizer.setEmail(email);
         organizer.setAddress(address);
 
+        if (bmp != null) {
+            Log.d("ProfilePhoto", "Saved");
+            organizer.setImage(bmp);
+        }
 
         //Just to check before the db is implemented
         //String message = "Profile saved:\nName: " + organizer.getName() + "\nEmail: " + organizer.getEmail() + "\nAdr: " + organizer.getAddress();
