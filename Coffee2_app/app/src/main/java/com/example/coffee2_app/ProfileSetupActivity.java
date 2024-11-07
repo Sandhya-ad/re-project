@@ -105,6 +105,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
         }
         newEntrant.setAdminNotification(receiveAdminNotif);
         newEntrant.setOrganizerNotification(receiveOrganizerNotif);
+        DatabaseHelper.updateEntrant(newEntrant);
 
         redirectToHome(newEntrant);
     }

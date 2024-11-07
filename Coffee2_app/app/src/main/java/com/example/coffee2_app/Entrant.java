@@ -12,15 +12,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * preferences, as well as a list of events the user has signed up for. It includes
  * methods to update user information in Firebase Firestore.
  *
- * <p>This class implements Serializable and marks the Firebase Firestore instance as
- * transient to avoid serialization issues.</p>
+ * <p>This class implements Serializable and marks the Firebase
  */
 public class Entrant implements Serializable {
 
     /**
      * List of events the entrant has signed up for.
      */
-    private final ArrayList<String> signedUpEvents;
+    private final ArrayList<Event> signedUpEvents;
+    /**
+     * List of events the entrant has waitlisted.
+     */
+    private final ArrayList<Event> waitListEvents;
 
     /**
      * The name of the entrant.
@@ -54,27 +57,6 @@ public class Entrant implements Serializable {
     private Boolean organizerNotification;
 
     /**
-     * A transient Firebase Firestore instance for database operations.
-     */
-    private transient FirebaseFirestore db;
-
-    /**
-     * Constructor for Entrant with a FirebaseFirestore instance.
-     *
-     * @param userId The ID of the user.
-     * @param name   The name of the user.
-     * @param email  The email of the user.
-     * @param db     The FirebaseFirestore instance for database operations.
-     */
-    public Entrant(String userId, String name, String email, FirebaseFirestore db) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.signedUpEvents = new ArrayList<>();
-        this.db = db;
-    }
-
-    /**
      * Constructor for Entrant with basic user details.
      *
      * @param userId The ID of the user.
@@ -86,6 +68,7 @@ public class Entrant implements Serializable {
         this.name = name;
         this.email = email;
         this.signedUpEvents = new ArrayList<>();
+        this.waitListEvents = new ArrayList<>();
     }
 
     /**
@@ -101,6 +84,7 @@ public class Entrant implements Serializable {
         this.name = name;
         this.email = email;
         this.signedUpEvents = new ArrayList<>();
+        this.waitListEvents = new ArrayList<>();
         this.profilePicture = profilePicture;
     }
 
@@ -114,6 +98,7 @@ public class Entrant implements Serializable {
         this.adminNotification = false;
         this.organizerNotification = false;
         this.signedUpEvents = new ArrayList<>();
+        this.waitListEvents = new ArrayList<>();
     }
 
     /**
@@ -121,6 +106,7 @@ public class Entrant implements Serializable {
      */
     public Entrant() {
         this.signedUpEvents = new ArrayList<>();
+        this.waitListEvents = new ArrayList<>();
     }
 
     // Getter and Setter methods
@@ -141,15 +127,6 @@ public class Entrant implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        if (userId != null) {
-            db.collection("users").document(userId)
-                    .update("entrant.name", name)
-                    .addOnSuccessListener(aVoid -> System.out.println("Entrant name updated in Firestore successfully."))
-                    .addOnFailureListener(e -> System.err.println("Error updating Entrant name in Firestore: " + e.getMessage()));
-        } else {
-            System.err.println("Firestore instance or user ID is null, cannot update name.");
-        }
     }
 
     /**
@@ -187,14 +164,6 @@ public class Entrant implements Serializable {
     public void setPhone(String phone) {
         this.phone = phone;
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        if (userId != null) {
-            db.collection("users").document(userId)
-                    .update("entrant.phone", phone)
-                    .addOnSuccessListener(aVoid -> System.out.println("Entrant phone updated in Firestore successfully."))
-                    .addOnFailureListener(e -> System.err.println("Error updating Entrant phone in Firestore: " + e.getMessage()));
-        } else {
-            System.err.println("Firestore instance or user ID is null, cannot update phone.");
-        }
     }
 
     /**
@@ -213,11 +182,6 @@ public class Entrant implements Serializable {
      */
     public void setAdminNotification(Boolean adminNotification) {
         this.adminNotification = adminNotification;
-        if (userId != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(userId)
-                    .update("entrant.adminNotification", this.adminNotification);
-        }
     }
 
     /**
@@ -236,11 +200,6 @@ public class Entrant implements Serializable {
      */
     public void setOrganizerNotification(Boolean organizerNotification) {
         this.organizerNotification = organizerNotification;
-        if (userId != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(userId)
-                    .update("entrant.organizerNotification", this.organizerNotification);
-        }
     }
 
     /**
@@ -248,17 +207,41 @@ public class Entrant implements Serializable {
      *
      * @param event The event to add.
      */
-    public void addSignedUpEvent(String event) {
+    public void addSignedUpEvent(Event event) {
         signedUpEvents.add(event);
         System.out.println(this.getName() + " signed up for event: " + event);
     }
-
+    /**
+     * Adds an event to the list of waitlisted events.
+     *
+     * @param event The event to add.
+     */
+    public void addWaitListedEvent(Event event) {
+        waitListEvents.add(event);
+        System.out.println(this.getName() + " signed up for event: " + event);
+    }
+    /**
+     * Removes an event from the list of signed-up events.
+     *
+     * @param event The event to remove.
+     */
+    public void removeWaitListedEvent(Event event) {
+        waitListEvents.remove(event);
+    }
+    /**
+     * Retrieves the list of events the entrant has waitlisted for.
+     *
+     * @return An ArrayList of waitlisted events.
+     */
+    public ArrayList<Event> getWaitListedEvents() {
+        return waitListEvents;
+    }
     /**
      * Retrieves the list of events the entrant has signed up for.
      *
      * @return An ArrayList of signed-up events.
      */
-    public ArrayList<String> getSignedUpEvents() {
+    public ArrayList<Event> getSignedUpEvents() {
         return signedUpEvents;
     }
 
@@ -278,14 +261,5 @@ public class Entrant implements Serializable {
      */
     public void setEmail(String email) {
         this.email = email;
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        if (userId != null) {
-            db.collection("users").document(userId)
-                    .update("entrant.email", email)
-                    .addOnSuccessListener(aVoid -> System.out.println("Entrant email updated in Firestore successfully."))
-                    .addOnFailureListener(e -> System.err.println("Error updating Entrant email in Firestore: " + e.getMessage()));
-        } else {
-            System.err.println("Firestore instance or user ID is null, cannot update email.");
-        }
     }
 }
