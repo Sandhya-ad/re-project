@@ -1,5 +1,4 @@
 package com.example.coffee2_app;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,6 +7,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -43,9 +43,15 @@ public class ProfileSetupActivity extends AppCompatActivity {
         Button saveButton = findViewById(R.id.save_button);
         adminNotifCheckbox = findViewById(R.id.checkbox_admin_notif);
         organizerNotifCheckbox = findViewById(R.id.checkbox_organizer_notif);
+
+        // Retrieve entrant and device ID
         Intent intent = getIntent();
         newEntrant = (Entrant) intent.getSerializableExtra("entrant");
         deviceID = newEntrant.getUserId();
+
+        // Back button functionality
+        ImageButton backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(v -> finish()); // Finishes the activity to return to the previous screen
 
         // Set up photo selection
         selectPhotoButton.setOnClickListener(v -> selectPhoto());
@@ -76,14 +82,13 @@ public class ProfileSetupActivity extends AppCompatActivity {
         String phone = phoneInput.getText().toString().trim();
         boolean receiveAdminNotif = adminNotifCheckbox.isChecked();
         boolean receiveOrganizerNotif = organizerNotifCheckbox.isChecked();
+
         if (name.isEmpty() || email.isEmpty()) {
             Toast.makeText(this, "Name and email are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create Entrant instance with all data
-        newEntrant.setName(name);
-        newEntrant.setEmail(email);
+        // Validate and set profile data
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
             return;
@@ -92,13 +97,16 @@ public class ProfileSetupActivity extends AppCompatActivity {
             Toast.makeText(this, "Phone number must be exactly 10 digits", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(!phone.isEmpty()){
+
+        newEntrant.setName(name);
+        newEntrant.setEmail(email);
+        if (!phone.isEmpty()) {
             newEntrant.setPhone(phone);
         }
         newEntrant.setAdminNotification(receiveAdminNotif);
         newEntrant.setOrganizerNotification(receiveOrganizerNotif);
+        DatabaseHelper.updateEntrant(newEntrant);
 
-        //newEntrant.setPhotoUri(profilePhotoUri != null ? profilePhotoUri.toString() : null); // Optional photo URI
         redirectToHome(newEntrant);
     }
 
@@ -108,5 +116,12 @@ public class ProfileSetupActivity extends AppCompatActivity {
         intent.putExtra("deviceID", deviceID);
         startActivity(intent);
         finish();
+    }
+
+    // Override onBackPressed to ensure consistent back-navigation behavior
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish(); // Finishes the activity to go back to the previous screen
     }
 }

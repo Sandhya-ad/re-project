@@ -6,6 +6,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -32,15 +33,15 @@ public class MainActivity extends AppCompatActivity {
         Button buttonOrganizer = findViewById(R.id.button_enter_organizer);
         Button buttonAdmin = findViewById(R.id.button_enter_admin);
 
-        // Initially hide the Admin button until we confirm user getIsAdmin status
+        // Initially hide the Admin button until we confirm user's getIsAdmin status
         buttonAdmin.setVisibility(View.GONE);
 
         if (deviceID != null) {
             checkAndAddUser(deviceID, newUser -> {
-                // Enable buttons only after currentUser is fully initialized
                 currentUser = newUser;
                 setupButtonListeners(buttonEntrant, buttonOrganizer, buttonAdmin);
-                Log.e("Admin", currentUser.getIsAdmin() + "");
+
+                // Display admin button if user is an admin
                 if (currentUser.getIsAdmin()) {
                     buttonAdmin.setVisibility(View.VISIBLE);
                 }
@@ -52,25 +53,51 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupButtonListeners(Button buttonEntrant, Button buttonOrganizer, Button buttonAdmin) {
         buttonEntrant.setOnClickListener(v -> {
-            if (currentUser != null && currentUser.getEntrant().getName() == null){
-                Intent intent = new Intent(MainActivity.this, ProfileSetupActivity.class);
-                intent.putExtra("entrant", currentUser.getEntrant());
-                startActivity(intent);
-            }
-            else if (currentUser != null && currentUser.getEntrant().getName() != null) {
-                Intent intent = new Intent(MainActivity.this, EntrantHomeActivity.class);
-                intent.putExtra("entrant", currentUser.getEntrant());
-                startActivity(intent);
-            } else {
-                Log.e("Firestore", "Entrant role not found for current user");
-            }
+            checkIsDeleted(deviceID, isDeleted -> {
+                if (isDeleted) {
+                    // Entrant profile was deleted
+                    Toast.makeText(this,
+                            "Sorry, your profile was deleted by the admin.",
+                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,
+                            "Please enter with another available role.",
+                            Toast.LENGTH_LONG).show();
+                    buttonEntrant.setVisibility(View.GONE);
+                } else {
+                    // If not deleted, fetch the latest user data
+                    checkAndAddUser(deviceID, newUser -> {
+                        currentUser = newUser;
+
+                        if (currentUser.getEntrant() != null && currentUser.getEntrant().getName() == null) {
+                            // Redirect to profile setup if name is missing
+                            Intent intent = new Intent(MainActivity.this, ProfileSetupActivity.class);
+                            intent.putExtra("entrant", currentUser.getEntrant());
+                            startActivity(intent);
+                        } else if (currentUser.getEntrant() != null) {
+                            // Entrant exists and has a name
+                            Intent intent = new Intent(MainActivity.this, EntrantHomeActivity.class);
+                            intent.putExtra("entrant", currentUser.getEntrant());
+                            startActivity(intent);
+                        } else {
+                            Log.e("Firestore", "Entrant role not found for current user");
+                        }
+                    });
+                }
+            });
         });
 
         buttonOrganizer.setOnClickListener(v -> {
-            //currentUser.addRole("organizer");
-            if(currentUser.getOrganizer() == null) {Log.e("test", "null");}
+            if (currentUser.getOrganizer() == null) {
+                Log.e("test", "Organizer is null");
+            }
             Intent intent = new Intent(MainActivity.this, OrganizerHomeActivity.class);
             intent.putExtra("organizer", currentUser.getOrganizer());
+            intent.putExtra("deviceID", deviceID);
+            startActivity(intent);
+        });
+
+        buttonAdmin.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AdminHomeActivity.class);
             intent.putExtra("deviceID", deviceID);
             startActivity(intent);
         });
@@ -79,16 +106,13 @@ public class MainActivity extends AppCompatActivity {
     private void checkAndAddUser(String deviceID, UserCallback callback) {
         DocumentReference docRef = db.collection("users").document(deviceID);
 
-        // Force fetch from Firestore server to ensure the latest data
+        // Fetch from Firestore server to ensure the latest data
         docRef.get(Source.SERVER).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
                     User user = document.toObject(User.class);
                     Log.d("Firestore", "User loaded: " + user);
-
-                    // Debug log for getIsAdmin to verify its value
-                    Log.d("AdminCheck", "User loaded with getIsAdmin: " + user.getIsAdmin());
 
                     callback.onUserLoaded(user);
                 } else {
@@ -107,20 +131,30 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void checkIsDeleted(String deviceID, DeletionCallback callback) {
+        DocumentReference docRef = db.collection("users").document(deviceID);
 
-    public void updateEntrantInFirestore() {
-        Entrant entrant = currentUser.getEntrant();
-        if (deviceID != null && entrant != null) {
-            db.collection("users")
-                    .document(deviceID)  // Use Device ID as the document ID in "users"
-                    .set(entrant)
-                    .addOnSuccessListener(aVoid -> Log.d("Firestore", "Entrant updated successfully in users"))
-                    .addOnFailureListener(e -> Log.e("Firestore", "Error updating entrant in users", e));
-        } else {
-            Log.w("Firestore", "Device ID or Entrant data is null, cannot update Firestore.");
-        }
+        docRef.get().addOnSuccessListener(document -> {
+            boolean isDeleted = false;
+            if (document.exists()) {
+                User user = document.toObject(User.class);
+                if (user != null && user.getEntrant() == null) {
+                    isDeleted = true;
+                }
+            }
+            callback.onDeletionChecked(isDeleted);
+        }).addOnFailureListener(e -> {
+            Log.e("FirestoreError", "Error checking if user is deleted", e);
+            Toast.makeText(this, "Error checking profile. Try again later.", Toast.LENGTH_SHORT).show();
+            finish();
+        });
     }
+
     interface UserCallback {
         void onUserLoaded(User user);
+    }
+
+    interface DeletionCallback {
+        void onDeletionChecked(boolean isDeleted);
     }
 }

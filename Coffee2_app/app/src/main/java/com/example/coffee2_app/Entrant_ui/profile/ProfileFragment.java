@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.coffee2_app.DatabaseHelper;
 import com.example.coffee2_app.Entrant;
 import com.example.coffee2_app.EntrantHomeActivity;
 import com.example.coffee2_app.R;
@@ -159,13 +160,14 @@ public class ProfileFragment extends Fragment {
         entrant.setName(name);
         entrant.setEmail(email);
         entrant.setPhone(phone);
-
+        DatabaseHelper.updateEntrant(entrant);
     }
     private void resetUI(String name, String email, String phone) {
         // Revert the UI to original values if validation fails
         binding.entrantName.setText(name);
         binding.entrantEmail.setText(email);
         binding.entrantPhone.setText(phone);
+
     }
 
     @Override

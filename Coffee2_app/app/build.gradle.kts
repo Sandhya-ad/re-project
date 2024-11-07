@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
 }
+tasks.withType<Test>{
+    useJUnitPlatform()
+}
 
 android {
     namespace = "com.example.coffee2_app"
@@ -49,8 +52,14 @@ dependencies {
     implementation(libs.navigation.ui)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.1")
     androidTestImplementation(libs.espresso.core)
     implementation("com.google.zxing:core:3.3.2")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    testImplementation("org.mockito:mockito-core:3.12.4")
+    testImplementation("org.mockito:mockito-inline:3.12.4")
+    testImplementation("net.bytebuddy:byte-buddy:1.12.20")
+
 
 }
