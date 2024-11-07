@@ -42,7 +42,6 @@ public class EntrantHomeActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         Log.d("FirestoreCheck", "Firestore is Initialized");
-        writeTestDocument();
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         Intent intent = getIntent();
@@ -69,16 +68,6 @@ public class EntrantHomeActivity extends AppCompatActivity {
         } else {
             Log.d("FirestoreCheck", "Device ID: " + deviceID);
         }
-    }
-
-    private void writeTestDocument() {
-        Map<String, Object> sampleData = new HashMap<>();
-        sampleData.put("message", "Hello, Firestore!");
-
-        db.collection("testCollection")
-                .add(sampleData)
-                .addOnSuccessListener(documentReference -> Log.d("FirestoreCheck", "DocumentSnapshot added with ID: " + documentReference.getId()))
-                .addOnFailureListener(e -> Log.d("FirestoreCheck", "Error adding document", e));
     }
 
     public void updateEntrantInFirestore( String name, String email) {

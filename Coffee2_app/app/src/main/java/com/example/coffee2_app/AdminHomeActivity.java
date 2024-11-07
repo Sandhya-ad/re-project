@@ -15,6 +15,10 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Activity for the Admin home screen, providing navigation and access to various
+ * admin functions such as managing events, profiles, images, and facilities.
+ */
 public class AdminHomeActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
@@ -22,18 +26,24 @@ public class AdminHomeActivity extends AppCompatActivity {
     private Admin admin;
     private String deviceID;
 
-
+    /**
+     * Initializes the activity, sets up the binding, Firestore, and bottom navigation.
+     *
+     * @param savedInstanceState Bundle containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        // Inflate layout using view binding
         binding = AdminMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Initialize Firestore instance
         db = FirebaseFirestore.getInstance();
         Log.d("FirestoreCheck", "Firestore is Initialized");
 
+        // Set up bottom navigation view
         BottomNavigationView navView = findViewById(R.id.admin_nav_view);
         Intent intent = getIntent();
 
@@ -50,7 +60,6 @@ public class AdminHomeActivity extends AppCompatActivity {
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.adminNavView, navController);
-
     }
 }
 

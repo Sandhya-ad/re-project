@@ -54,6 +54,13 @@ public class Event implements Serializable {
         this.hashQrData = hashQrData;
         this.maxEntries = maxEntries;
     }
+    //constructor to check the events for Entrants
+    public Event(String sampleEvent) {
+        this.id = UUID.randomUUID().toString();
+        this.name = sampleEvent;
+        this.attendees = new ArrayList<>();
+        this.waitingList = new ArrayList<>();
+    }
 
     public String getId() {
         return id;

@@ -90,6 +90,15 @@ public class User implements Serializable {
         return hasEntrantRole() ? entrant : null;
     }
 
+    /**
+     * Sets the Entrant object associated with the user.
+     *
+     * @param entrant The Entrant object to set.
+     */
+    public void setEntrant(Entrant entrant) {
+        this.entrant = entrant;
+    }
+
     // Admin management methods
 
     /**
@@ -158,19 +167,6 @@ public class User implements Serializable {
         }
     }
 
-    public void setEntrant(Entrant entrant) {
-        this.entrant = entrant;
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        if (userId != null) {
-//            db.collection("users").document(userId)
-//                    .update("entrant", entrant)
-//                    .addOnSuccessListener(aVoid -> System.out.println("Entrant name updated in Firestore successfully."))
-//                    .addOnFailureListener(e -> System.err.println("Error updating Entrant name in Firestore: " + e.getMessage()));
-//        } else {
-//            System.err.println("Firestore instance or user ID is null, cannot update name.");
-//        }
-    }
-
     /**
      * Removes a role from the user if it is present. If the role is "entrant" or
      * "organizer," it nullifies the Entrant or Organizer object respectively.
@@ -187,3 +183,4 @@ public class User implements Serializable {
         }
     }
 }
+
