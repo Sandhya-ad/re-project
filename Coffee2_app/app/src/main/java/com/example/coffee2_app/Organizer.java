@@ -48,20 +48,6 @@ public class Organizer implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
-        if (userID != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(userID)
-                    .update("organizer.name", name) // Nested path if Entrant is a nested object
-                    .addOnSuccessListener(aVoid -> {
-                        System.out.println("Facility name updated in Firestore successfully.");
-                    })
-                    .addOnFailureListener(e -> {
-                        System.err.println("Error updating Facility name in Firestore: " + e.getMessage());
-                    });
-        }
-        else {
-            System.err.println("Firestore instance or user ID is null, cannot update.");
-        }
     }
 
     /**
@@ -77,20 +63,6 @@ public class Organizer implements Serializable {
     // TODO: Set this as a real geolocation possibly?
     public void setAddress(String address) {
         this.address = address;
-        if (userID != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(userID)
-                    .update("organizer.address", address) // Nested path if Entrant is a nested object
-                    .addOnSuccessListener(aVoid -> {
-                        System.out.println("Facility address updated in Firestore successfully.");
-                    })
-                    .addOnFailureListener(e -> {
-                        System.err.println("Error updating Facility address in Firestore: " + e.getMessage());
-                    });
-        }
-        else {
-            System.err.println("Firestore instance or user ID is null, cannot update.");
-        }
     }
 
     /**
@@ -105,20 +77,6 @@ public class Organizer implements Serializable {
      */
     public void setEmail(String email) {
         this.email = email;
-        if (userID != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(userID)
-                    .update("organizer.email", email) // Nested path if Entrant is a nested object
-                    .addOnSuccessListener(aVoid -> {
-                        System.out.println("Facility email updated in Firestore successfully.");
-                    })
-                    .addOnFailureListener(e -> {
-                        System.err.println("Error updating Facility email in Firestore: " + e.getMessage());
-                    });
-        }
-        else {
-            System.err.println("Firestore instance or user ID is null, cannot update.");
-        }
     }
 
     /**
@@ -149,6 +107,10 @@ public class Organizer implements Serializable {
         return userID;
     }
 
+    /**
+     * Turns a Bitmap into an ID and stores it in the Firebase
+     * @param bitmap
+     */
     public void setImage(Bitmap bitmap) {
         ByteArrayOutputStream converter = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, converter);
@@ -158,7 +120,9 @@ public class Organizer implements Serializable {
                 this.imageID = UUID.nameUUIDFromBytes(encodedBmp.getBytes()).toString();
                 Log.d("ProfilePhoto", this.imageID);
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection("images").document(imageID).set(encodedBmp);
+                Map<String, Object> data = new HashMap<>();
+                data.put("imageData", encodedBmp);
+                db.collection("images").document(imageID).set(data);
             }
             else {
                 System.err.println("Could not upload image.");
@@ -167,6 +131,14 @@ public class Organizer implements Serializable {
         else {
             Log.d("ImageTest", "Permission Error");
         }
+    }
+
+    /**
+     * Returns
+     * @return ImageID to retrieve in Firestore
+     */
+    public String getImageID() {
+        return this.imageID;
     }
 
 

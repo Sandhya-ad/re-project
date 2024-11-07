@@ -3,9 +3,11 @@ package com.example.coffee2_app.Organizer_ui.profile;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -20,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.coffee2_app.DatabaseHelper;
 import com.example.coffee2_app.EntrantHomeActivity;
 import com.example.coffee2_app.Image;
 import com.example.coffee2_app.ImageGenerator;
@@ -28,9 +31,13 @@ import com.example.coffee2_app.Organizer;
 import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentOrganizerProfileBinding;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class ProfileFragment extends Fragment {
 
@@ -104,8 +111,8 @@ public class ProfileFragment extends Fragment {
                             else {
                                 gen = new ImageGenerator("User");
                             }
-                            binding.organizerImage.setImageBitmap(gen.getImg());
                             bmp = gen.getImg();
+                            binding.organizerImage.setImageBitmap(bmp);
                             return true;
                         }
                         else {
@@ -136,6 +143,51 @@ public class ProfileFragment extends Fragment {
         else { binding.organizerEmail.setText(""); }
         if(organizer.getAddress() != null) { binding.organizerAddress.setText(organizer.getAddress()); }
         else { binding.organizerAddress.setText(""); }
+        if (organizer.getImageID() != null) {
+            // If document doesn't exist, fallback to default photo
+            DocumentReference doc = db.collection("images").document(organizer.getImageID());
+            doc.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+
+                    if (document.exists()) {
+                        Log.d("Firestore", "Document exists, loading picture.");
+
+                        // If doc exists
+                        String imageData = document.getString("imageData");
+                        InputStream inputStream = new ByteArrayInputStream(Base64.decode(imageData, Base64.DEFAULT));
+                        binding.organizerImage.setImageBitmap(BitmapFactory.decodeStream(inputStream));
+                    }
+                    else {
+                        // If doc doesn't exist, save default picture
+                        Log.d("Firestore", "Document does not exist.");
+                        ImageGenerator gen;
+                        if (organizer.getName() != null) {
+                            gen = new ImageGenerator(organizer.getName());
+                            organizer.setImage(gen.getImg());
+                        }
+                        else {
+                            gen = new ImageGenerator("User");
+                        }
+                        binding.organizerImage.setImageBitmap(gen.getImg());
+                    }
+                }
+                else {
+                    Log.e("FirestoreError", "Image Failed: ", task.getException());
+                }
+            });
+        }
+        else {
+            ImageGenerator gen;
+            if (organizer.getName() != null) {
+                gen = new ImageGenerator(organizer.getName());
+                organizer.setImage(gen.getImg());
+            }
+            else {
+                gen = new ImageGenerator("User");
+            }
+            binding.organizerImage.setImageBitmap(gen.getImg());
+        }
     }
 
     @Override
@@ -146,6 +198,7 @@ public class ProfileFragment extends Fragment {
             if (selectedImageUri != null) {
                 try {
                     bmp = MediaStore.Images.Media.getBitmap(this.getContext().getContentResolver(), selectedImageUri);
+                    bmp = Bitmap.createScaledBitmap(bmp, 500, 500, false);
                     binding.organizerImage.setImageBitmap(bmp);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -208,6 +261,11 @@ public class ProfileFragment extends Fragment {
             organizer.setImage(bmp);
         }
 
+        if (organizer.getImageID() == null) {
+            ImageGenerator gen = new ImageGenerator(organizer.getName());
+            organizer.setImage(gen.getImg());
+        }
+
         //Just to check before the db is implemented
         //String message = "Profile saved:\nName: " + organizer.getName() + "\nEmail: " + organizer.getEmail() + "\nAdr: " + organizer.getAddress();
 
@@ -215,6 +273,7 @@ public class ProfileFragment extends Fragment {
 
         if (ret) {
             toggleEditMode();
+            DatabaseHelper.updateOrganizer(organizer);
         }
         else {
             Toast.makeText(getActivity(), "Please set a name.", Toast.LENGTH_LONG).show();

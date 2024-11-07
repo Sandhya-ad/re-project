@@ -61,5 +61,4 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:3.12.4")
     testImplementation("net.bytebuddy:byte-buddy:1.12.20")
 
-
 }
