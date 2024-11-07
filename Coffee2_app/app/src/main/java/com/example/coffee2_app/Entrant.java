@@ -1,11 +1,8 @@
 package com.example.coffee2_app;
-
-// File: Entrant.java
 import android.graphics.Bitmap;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import com.google.firebase.firestore.FirebaseFirestore;
 /**
  * The Entrant class represents a user participating in events within the application.
  * It stores user details such as name, email, user ID, phone number, and notification
@@ -83,8 +80,8 @@ public class Entrant implements Serializable {
         this.userId = userId;
         this.name = name;
         this.email = email;
-        this.signedUpEvents = new ArrayList<>();
-        this.waitListEvents = new ArrayList<>();
+        this.signedUpEvents = new ArrayList<Event>();
+        this.waitListEvents = new ArrayList<Event>();
         this.profilePicture = profilePicture;
     }
 
@@ -97,8 +94,8 @@ public class Entrant implements Serializable {
         this.userId = userId;
         this.adminNotification = false;
         this.organizerNotification = false;
-        this.signedUpEvents = new ArrayList<>();
-        this.waitListEvents = new ArrayList<>();
+        this.signedUpEvents = new ArrayList<Event>();
+        this.waitListEvents = new ArrayList<Event>();
     }
 
     /**
@@ -163,7 +160,6 @@ public class Entrant implements Serializable {
      */
     public void setPhone(String phone) {
         this.phone = phone;
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
     }
 
     /**
