@@ -162,15 +162,15 @@ public class User implements Serializable {
 
     public void setEntrant(Entrant entrant) {
         this.entrant = entrant;
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        if (userId != null) {
-            db.collection("users").document(userId)
-                    .update("entrant", entrant)
-                    .addOnSuccessListener(aVoid -> System.out.println("Entrant name updated in Firestore successfully."))
-                    .addOnFailureListener(e -> System.err.println("Error updating Entrant name in Firestore: " + e.getMessage()));
-        } else {
-            System.err.println("Firestore instance or user ID is null, cannot update name.");
-        }
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        if (userId != null) {
+//            db.collection("users").document(userId)
+//                    .update("entrant", entrant)
+//                    .addOnSuccessListener(aVoid -> System.out.println("Entrant name updated in Firestore successfully."))
+//                    .addOnFailureListener(e -> System.err.println("Error updating Entrant name in Firestore: " + e.getMessage()));
+//        } else {
+//            System.err.println("Firestore instance or user ID is null, cannot update name.");
+//        }
     }
 
     /**

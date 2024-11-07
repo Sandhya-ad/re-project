@@ -57,7 +57,10 @@ public class MainActivity extends AppCompatActivity {
                 if (isDeleted) {
                     // Entrant profile was deleted
                     Toast.makeText(this,
-                            "Sorry, your profile was deleted by the admin. Please enter with another available role.",
+                            "Sorry, your profile was deleted by the admin.",
+                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,
+                            "Please enter with another available role.",
                             Toast.LENGTH_LONG).show();
                     buttonEntrant.setVisibility(View.GONE);
                 } else {
