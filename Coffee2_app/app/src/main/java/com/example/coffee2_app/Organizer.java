@@ -1,5 +1,7 @@
 package com.example.coffee2_app;
 
+import android.graphics.Bitmap;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -11,10 +13,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class Organizer implements Serializable {
 
@@ -23,6 +28,7 @@ public class Organizer implements Serializable {
     private String address;
     private String email;
     private String userID;
+    private String imageID;
 
     /**
      * Constructor class for the Organization
@@ -42,20 +48,6 @@ public class Organizer implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
-        if (userID != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(userID)
-                    .update("organizer.name", name) // Nested path if Entrant is a nested object
-                    .addOnSuccessListener(aVoid -> {
-                        System.out.println("Facility name updated in Firestore successfully.");
-                    })
-                    .addOnFailureListener(e -> {
-                        System.err.println("Error updating Facility name in Firestore: " + e.getMessage());
-                    });
-        }
-        else {
-            System.err.println("Firestore instance or user ID is null, cannot update.");
-        }
     }
 
     /**
@@ -71,20 +63,6 @@ public class Organizer implements Serializable {
     // TODO: Set this as a real geolocation possibly?
     public void setAddress(String address) {
         this.address = address;
-        if (userID != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(userID)
-                    .update("organizer.address", address) // Nested path if Entrant is a nested object
-                    .addOnSuccessListener(aVoid -> {
-                        System.out.println("Facility address updated in Firestore successfully.");
-                    })
-                    .addOnFailureListener(e -> {
-                        System.err.println("Error updating Facility address in Firestore: " + e.getMessage());
-                    });
-        }
-        else {
-            System.err.println("Firestore instance or user ID is null, cannot update.");
-        }
     }
 
     /**
@@ -99,20 +77,6 @@ public class Organizer implements Serializable {
      */
     public void setEmail(String email) {
         this.email = email;
-        if (userID != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(userID)
-                    .update("organizer.email", email) // Nested path if Entrant is a nested object
-                    .addOnSuccessListener(aVoid -> {
-                        System.out.println("Facility email updated in Firestore successfully.");
-                    })
-                    .addOnFailureListener(e -> {
-                        System.err.println("Error updating Facility email in Firestore: " + e.getMessage());
-                    });
-        }
-        else {
-            System.err.println("Firestore instance or user ID is null, cannot update.");
-        }
     }
 
     /**
@@ -142,6 +106,41 @@ public class Organizer implements Serializable {
     public String getUserID() {
         return userID;
     }
+
+    /**
+     * Turns a Bitmap into an ID and stores it in the Firebase
+     * @param bitmap
+     */
+    public void setImage(Bitmap bitmap) {
+        ByteArrayOutputStream converter = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, converter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String encodedBmp = Base64.getEncoder().encodeToString(converter.toByteArray());
+            if (encodedBmp != null) {
+                this.imageID = UUID.nameUUIDFromBytes(encodedBmp.getBytes()).toString();
+                Log.d("ProfilePhoto", this.imageID);
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                Map<String, Object> data = new HashMap<>();
+                data.put("imageData", encodedBmp);
+                db.collection("images").document(imageID).set(data);
+            }
+            else {
+                System.err.println("Could not upload image.");
+            }
+        }
+        else {
+            Log.d("ImageTest", "Permission Error");
+        }
+    }
+
+    /**
+     * Returns
+     * @return ImageID to retrieve in Firestore
+     */
+    public String getImageID() {
+        return this.imageID;
+    }
+
 
     /*
     public void sync() {

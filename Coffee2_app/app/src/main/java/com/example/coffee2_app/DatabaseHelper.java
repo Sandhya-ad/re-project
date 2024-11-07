@@ -27,8 +27,8 @@ public class DatabaseHelper {
                 .update("entrant", entrant)
                 .addOnSuccessListener(aVoid -> System.out.println("Entrant updated in Firestore successfully."))
                 .addOnFailureListener(e -> System.err.println("Error updating Entrant in Firestore: " + e.getMessage()));
-    }
-
+       }
+  
     /**
      * Updates the User object in Firestore, setting the entire object in the database.
      *
@@ -48,6 +48,18 @@ public class DatabaseHelper {
     }
 
     /**
+     * Method for updating organizer
+     * @param organizer
+     */
+    public static void updateOrganizer(Organizer organizer) {
+        if (organizer.getUserID() == null) {
+            System.err.println("User ID is null, cannot update entrant.");
+            return;
+        }
+        db.collection("users").document(organizer.getUserID())
+                .update("organizer", organizer);
+    }
+
      * Adds a new User object to Firestore.
      *
      * @param user The User object to add to Firestore.
