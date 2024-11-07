@@ -2,14 +2,19 @@ package com.example.coffee2_app.Organizer_ui.profile;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,12 +22,22 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.coffee2_app.DatabaseHelper;
 import com.example.coffee2_app.EntrantHomeActivity;
+import com.example.coffee2_app.Image;
+import com.example.coffee2_app.ImageGenerator;
+import com.example.coffee2_app.MainActivity;
 import com.example.coffee2_app.Organizer;
 import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentOrganizerProfileBinding;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ProfileFragment extends Fragment {
 
@@ -32,6 +47,7 @@ public class ProfileFragment extends Fragment {
     private boolean isEditing = false;
     private FirebaseFirestore db;
     private String deviceID;
+    private Bitmap bmp;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -78,7 +94,33 @@ public class ProfileFragment extends Fragment {
         // Profile picture click listener, only triggers in edit mode
         binding.organizerImage.setOnClickListener(view -> {
             if (isEditing) {
-                openImagePicker();
+                PopupMenu popupMenu = new PopupMenu(this.getContext(), view);
+                popupMenu.getMenuInflater().inflate(R.menu.image_menu, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (item.getItemId() == R.id.choose_image) {
+                            openImagePicker();
+                            return true;
+                        }
+                        else if (item.getItemId() == R.id.remove_image) {
+                            ImageGenerator gen;
+                            if (organizer.getName() != null) {
+                                gen = new ImageGenerator(organizer.getName());
+                            }
+                            else {
+                                gen = new ImageGenerator("User");
+                            }
+                            bmp = gen.getImg();
+                            binding.organizerImage.setImageBitmap(bmp);
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                });
+                popupMenu.show();
             }
         });
 
@@ -101,6 +143,51 @@ public class ProfileFragment extends Fragment {
         else { binding.organizerEmail.setText(""); }
         if(organizer.getAddress() != null) { binding.organizerAddress.setText(organizer.getAddress()); }
         else { binding.organizerAddress.setText(""); }
+        if (organizer.getImageID() != null) {
+            // If document doesn't exist, fallback to default photo
+            DocumentReference doc = db.collection("images").document(organizer.getImageID());
+            doc.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+
+                    if (document.exists()) {
+                        Log.d("Firestore", "Document exists, loading picture.");
+
+                        // If doc exists
+                        String imageData = document.getString("imageData");
+                        InputStream inputStream = new ByteArrayInputStream(Base64.decode(imageData, Base64.DEFAULT));
+                        binding.organizerImage.setImageBitmap(BitmapFactory.decodeStream(inputStream));
+                    }
+                    else {
+                        // If doc doesn't exist, save default picture
+                        Log.d("Firestore", "Document does not exist.");
+                        ImageGenerator gen;
+                        if (organizer.getName() != null) {
+                            gen = new ImageGenerator(organizer.getName());
+                            organizer.setImage(gen.getImg());
+                        }
+                        else {
+                            gen = new ImageGenerator("User");
+                        }
+                        binding.organizerImage.setImageBitmap(gen.getImg());
+                    }
+                }
+                else {
+                    Log.e("FirestoreError", "Image Failed: ", task.getException());
+                }
+            });
+        }
+        else {
+            ImageGenerator gen;
+            if (organizer.getName() != null) {
+                gen = new ImageGenerator(organizer.getName());
+                organizer.setImage(gen.getImg());
+            }
+            else {
+                gen = new ImageGenerator("User");
+            }
+            binding.organizerImage.setImageBitmap(gen.getImg());
+        }
     }
 
     @Override
@@ -109,8 +196,13 @@ public class ProfileFragment extends Fragment {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == getActivity().RESULT_OK && data != null) {
             Uri selectedImageUri = data.getData();
             if (selectedImageUri != null) {
-                binding.organizerImage.setImageURI(selectedImageUri);
-                // Save the selected image URI to a database or cloud storage if needed
+                try {
+                    bmp = MediaStore.Images.Media.getBitmap(this.getContext().getContentResolver(), selectedImageUri);
+                    bmp = Bitmap.createScaledBitmap(bmp, 500, 500, false);
+                    binding.organizerImage.setImageBitmap(bmp);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -164,6 +256,15 @@ public class ProfileFragment extends Fragment {
         organizer.setEmail(email);
         organizer.setAddress(address);
 
+        if (bmp != null) {
+            Log.d("ProfilePhoto", "Saved");
+            organizer.setImage(bmp);
+        }
+
+        if (organizer.getImageID() == null) {
+            ImageGenerator gen = new ImageGenerator(organizer.getName());
+            organizer.setImage(gen.getImg());
+        }
 
         //Just to check before the db is implemented
         //String message = "Profile saved:\nName: " + organizer.getName() + "\nEmail: " + organizer.getEmail() + "\nAdr: " + organizer.getAddress();
@@ -172,6 +273,7 @@ public class ProfileFragment extends Fragment {
 
         if (ret) {
             toggleEditMode();
+            DatabaseHelper.updateOrganizer(organizer);
         }
         else {
             Toast.makeText(getActivity(), "Please set a name.", Toast.LENGTH_LONG).show();
