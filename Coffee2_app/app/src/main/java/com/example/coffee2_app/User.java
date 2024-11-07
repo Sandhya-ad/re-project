@@ -1,7 +1,5 @@
 package com.example.coffee2_app;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
