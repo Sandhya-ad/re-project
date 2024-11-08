@@ -25,7 +25,7 @@ import java.util.List;
 
 public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewHolder> {
     private List<Event> events;
-    private FragmentManager currentFragment;
+    private Fragment currentFragment;
     private Context context;
 
     /**
@@ -33,7 +33,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
      * @param events
      * @param currentFragment
      */
-    public EventsAdapter(List<Event> events, Context context, FragmentManager currentFragment) {
+    public EventsAdapter(List<Event> events, Fragment currentFragment) {
         this.events = events;
         this.context = context;
         this.currentFragment = currentFragment;
