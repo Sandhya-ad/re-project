@@ -58,6 +58,13 @@ public class EntrantHomeActivity extends AppCompatActivity {
         return deviceID;
     }
 
+    /**
+     * This method is called when the activity is created. It sets up the view, initializes the database,
+     * configures the bottom navigation bar, and fetches the necessary data (events) from Firestore.
+     *
+     * @param savedInstanceState a Bundle containing any saved instance state (can be null).
+     */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +113,13 @@ public class EntrantHomeActivity extends AppCompatActivity {
         fetchEvents(entrant.getUserId());
     }
 
+    /**
+     * This method fetches events associated with the current user (entrant) from Firestore.
+     * It retrieves event IDs from the user's data, then fetches details for each event and populates
+     * the list of events to be displayed in the RecyclerView
+     *
+     * @param userId user's (entrant's) ID whose events are to be fetched.
+     */
     @SuppressLint("NotifyDataSetChanged")
     public void fetchEvents(String userId) {
         db.collection("users").document(userId).collection("events")
