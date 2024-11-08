@@ -18,6 +18,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.coffee2_app.Organizer_ui.myevents.EventDetailsFragment;
+import com.example.coffee2_app.Organizer_ui.myevents.MyEventsFragment;
 
 import java.util.Date;
 import java.util.List;
@@ -32,6 +33,8 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
         this.context = context;
         this.currentFragment = currentFragment;
     }
+
+
 
     @NonNull
     @Override

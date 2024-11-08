@@ -8,7 +8,9 @@ public class Image {
 
     // No-argument constructor required for Firestore
     public Image() {}
-
+    public Image(String imageUrl) {
+        this.url = url;
+    }
     public Image(String id, String url, String description) {
         this.id = id;
         this.url = url;
@@ -39,4 +41,6 @@ public class Image {
     public void setDescription(String description) {
         this.description = description;
     }
+
+
 }

@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.firebase.storage)
     testImplementation(libs.junit)
     testImplementation(libs.androidx.junit)
     testImplementation(libs.espresso.core)
