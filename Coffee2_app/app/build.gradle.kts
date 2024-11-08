@@ -1,3 +1,11 @@
+configurations {
+    all {
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-coroutines-core")
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+    }
+}
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
@@ -46,10 +54,9 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
-    implementation(libs.lifecycle.livedata.ktx)
-    implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.espresso.intents)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.1")

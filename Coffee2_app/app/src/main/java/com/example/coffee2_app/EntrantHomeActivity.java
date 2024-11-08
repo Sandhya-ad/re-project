@@ -25,10 +25,18 @@ public class EntrantHomeActivity extends AppCompatActivity {
     private Entrant entrant;
     private String deviceID;
 
+    /**
+     * Getter method for entrant object, for fragments
+     * @return Entrant
+     */
     public Entrant getEntrant() {
         return entrant;
     }
 
+    /**
+     * Getter method for DeviceID
+     * @return DeviceID
+     */
     public String getDeviceID() {
         return deviceID;
     }

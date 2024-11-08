@@ -38,6 +38,10 @@ public class Organizer implements Serializable {
         this.userID = userID;
         this.events = new ArrayList<>();
     }
+
+    /**
+     * Firestore Constructor class for Organizer
+     */
     public Organizer() {
         this.events = new ArrayList<>();
     }
@@ -95,8 +99,16 @@ public class Organizer implements Serializable {
      * Returns an ArrayList of the Organizer's Events
      * @return ArrayList of Events
      */
-    public ArrayList<Event> events() {
+    public ArrayList<Event> getEvents() {
         return events;
+    }
+
+    /**
+     * Removes an event from the Organizer's Events List
+     * @param event
+     */
+    public void removeEvent(Event event) {
+        events.remove(event);
     }
 
     /**
@@ -123,6 +135,27 @@ public class Organizer implements Serializable {
                 Map<String, Object> data = new HashMap<>();
                 data.put("imageData", encodedBmp);
                 db.collection("images").document(imageID).set(data);
+            }
+            else {
+                System.err.println("Could not upload image.");
+            }
+        }
+        else {
+            Log.d("ImageTest", "Permission Error");
+        }
+    }
+
+    /**
+     * Method for JUnit testing, does not upload to cloud.
+     * @param bitmap
+     */
+    public void setLocalImage(Bitmap bitmap) {
+        ByteArrayOutputStream converter = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, converter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String encodedBmp = Base64.getEncoder().encodeToString(converter.toByteArray());
+            if (encodedBmp != null) {
+                this.imageID = UUID.nameUUIDFromBytes(encodedBmp.getBytes()).toString();
             }
             else {
                 System.err.println("Could not upload image.");

@@ -10,6 +10,10 @@ import java.util.List;
 public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileViewHolder> {
     private List<Profile> profiles;
 
+    /**
+     * Constructor for ProfileAdapter
+     * @param profiles
+     */
     public ProfileAdapter(List<Profile> profiles) {
         this.profiles = profiles;
     }
@@ -28,6 +32,10 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
         // Bind the profile data to the views here
     }
 
+    /**
+     * Returns how many profiles there are.
+     * @return Profile count
+     */
     @Override
     public int getItemCount() {
         return profiles.size();

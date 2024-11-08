@@ -55,85 +55,166 @@ public class Event implements Serializable {
         this.maxEntries = maxEntries;
     }
 
+    /**
+     * Gets UUID of Event
+     * @return Event ID
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Setter method for ID, if needed
+     * @param id
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * Getter method for Name
+     * @return Name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Setter method for Name
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Getter method for Organizer owner
+     * @return Organizer
+     */
     public String getOrganizer() {
         return organizerID;
     }
 
+    /**
+     * Setter method for Organizer owner
+     * @param organizer
+     */
     public void setOrganizer(String organizer) {
         this.organizerID = organizerID;
     }
 
+    /**
+     * Getter method for max entries
+     * @return Event Max Entries
+     */
     public int getMaxEntries() {
         return maxEntries;
     }
 
+    /**
+     * Setter method for max entries
+     * @param maxEntries
+     */
     public void setMaxEntries(int maxEntries) {
         this.maxEntries = maxEntries;
     }
 
+    /**
+     * Getter method for Geo Checkbox
+     * @return Boolean
+     */
     public boolean isCollectGeo() {
         return collectGeo;
     }
 
+    /**
+     * Setter method for Geo Checkbox
+     * @param collectGeo
+     */
     public void setCollectGeo(boolean collectGeo) {
         this.collectGeo = collectGeo;
     }
 
+    /**
+     * Getter method for total attendees
+     * @return Attendee total
+     */
     public List<User> getAttendees() {
         return attendees;
     }
 
+    /**
+     * Setter method for total attendees
+     * @param attendees
+     */
     public void setAttendees(List<User> attendees) {
         this.attendees = attendees;
     }
 
+    /**
+     * Getter method for waitlist
+     * @return Waitlist
+     */
     public List<User> getWaitingList() {
         return waitingList;
     }
 
+    /**
+     * Setter method for waitlist
+     * @param waitingList
+     */
     public void setWaitingList(List<User> waitingList) {
         this.waitingList = waitingList;
     }
 
+    /**
+     * Getter method for QR Code Data
+     * @return QR Code Data
+     */
     public String getHashQrData() {
         return hashQrData;
     }
 
+    /**
+     * Setter method for QR Code Data
+     * @param hashQrData
+     */
     public void setHashQrData(String hashQrData) {
         this.hashQrData = hashQrData;
     }
 
+    /**
+     * Getter method for event date
+     * @return Event Date
+     */
     public Timestamp getEventDate() {
         return eventDate;
     }
 
+    /**
+     * Setter method for event date
+     * @param eventDate
+     */
     public void setEventDate(Timestamp eventDate) {
         this.eventDate = eventDate;
     }
 
+    /**
+     * Getter method for draw date
+     * @return Draw Date
+     */
     public Timestamp getDrawDate() {
         return drawDate;
     }
 
+    /**
+     * Setter method for draw date
+     * @param drawDate
+     */
     public void setDrawDate(Timestamp drawDate) {
         this.drawDate = drawDate;
     }
+
 
     private void generateQRCode() {
         BarcodeEncoder QRGenerator = new BarcodeEncoder();
