@@ -1,8 +1,18 @@
 package com.example.coffee2_app;
 import android.graphics.Bitmap;
+import android.os.Build;
+import android.util.Log;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 /**
  * The Entrant class represents a user participating in events within the application.
  * It stores user details such as name, email, user ID, phone number, and notification
@@ -52,6 +62,8 @@ public class Entrant implements Serializable {
      * Notification preference for organizer notifications.
      */
     private Boolean organizerNotification;
+
+    private String imageID;
 
     /**
      * Constructor for Entrant with basic user details.
@@ -257,5 +269,33 @@ public class Entrant implements Serializable {
      */
     public void setEmail(String email) {
         this.email = email;
+    }
+    /**
+     * Turns a Bitmap into an ID and stores it in the Firebase
+     * @param bitmap
+     */
+    public void setImage(Bitmap bitmap) {
+        ByteArrayOutputStream converter = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, converter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String encodedBmp = Base64.getEncoder().encodeToString(converter.toByteArray());
+            if (encodedBmp != null) {
+                this.imageID = UUID.nameUUIDFromBytes(encodedBmp.getBytes()).toString();
+                Log.d("ProfilePhoto", this.imageID);
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                Map<String, Object> data = new HashMap<>();
+                data.put("imageData", encodedBmp);
+                db.collection("images").document(imageID).set(data);
+            }
+            else {
+                System.err.println("Could not upload image.");
+            }
+        }
+        else {
+            Log.d("ImageTest", "Permission Error");
+        }
+    }
+    public String getImageID() {
+        return this.imageID;
     }
 }

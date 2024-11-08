@@ -14,8 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.coffee2_app.Event;
 import com.example.coffee2_app.EventsAdapter;
-import com.example.coffee2_app.Organizer;
-import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentMyEventsBinding;
 import com.google.firebase.Timestamp;
@@ -30,12 +28,10 @@ import java.util.List;
  */
 public class MyEventsFragment extends Fragment {
 
-    private Organizer organizer;
     private FragmentMyEventsBinding binding;
     private FirebaseFirestore db;
     private EventsAdapter eventsAdapter; // Create an adapter for your RecyclerView
     private List<Event> eventList; // Create a list to hold events
-    private String deviceID;
 
     /**
      * Inflates the layout, initializes Firestore and click listeners.
@@ -107,6 +103,7 @@ public class MyEventsFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
+                            String id = "";
                             String name = document.getString("name");
                             String userID = document.getString("facilityID");
                             int maxEntries = document.getLong("entriesLimit").intValue();

@@ -19,6 +19,7 @@ public class Facility {
      * Description of the facility
      */
     private String description;
+    private String imageUrl;
 
     /**
      * Constructs a Facility object with the specified ID, name, and description
@@ -31,6 +32,7 @@ public class Facility {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.imageUrl = imageUrl;
     }
 
     /**
@@ -90,5 +92,13 @@ public class Facility {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

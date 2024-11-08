@@ -6,11 +6,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.coffee2_app.Image;
 import com.example.coffee2_app.databinding.FragmentAdminImagesBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -24,7 +27,7 @@ public class BrowseImagesFragment extends Fragment {
     private FirebaseFirestore db;
     private RecyclerView recyclerView;
     private BrowseImagesAdapter imagesAdapter;
-    private List<String> imagesList;
+    private List<Image> imagesList;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,15 +61,15 @@ public class BrowseImagesFragment extends Fragment {
                 QuerySnapshot querySnapshot = task.getResult();
                 if (querySnapshot != null) {
                     for (QueryDocumentSnapshot document : querySnapshot) {
-                        String imageUrl = document.getString("url"); // Assume "url" is the field name in Firestore
+                        String imageUrl = document.getString("url"); // Assuming "url" is the field name in Firestore
                         if (imageUrl != null) {
-                            imagesList.add(imageUrl);
+                            Image image = new Image(imageUrl); // Create an Image object
+                            imagesList.add(image); // Add Image object to imagesList
                         }
                     }
                     imagesAdapter.notifyDataSetChanged();
                 }
             } else {
-                // Handle errors, e.g., show a Toast
                 Toast.makeText(getContext(), "Failed to load images", Toast.LENGTH_SHORT).show();
             }
         });

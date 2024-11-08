@@ -1,6 +1,8 @@
 package com.example.coffee2_app;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -12,9 +14,13 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.FragmentManager;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.coffee2_app.Organizer_ui.myevents.EventDetailsFragment;
+//import com.example.coffee2_app.Organizer_ui.myevents.MyEventsFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,15 +35,16 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
 
     private List<Event> events;
     private Fragment currentFragment;
+    private Context context;
 
     /**
-     * Constructor for initializing the adapter
-     *
-     * @param events           List of events
-     * @param currentFragment  Fragment where this adapter is used
+     * Constructor for EventsAdapter
+     * @param events
+     * @param currentFragment
      */
     public EventsAdapter(List<Event> events, Fragment currentFragment) {
         this.events = events;
+        this.context = context;
         this.currentFragment = currentFragment;
     }
 
@@ -67,6 +74,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
         Event event = events.get(position);
         holder.nameTextView.setText(event.getName());
         holder.addressTextView.setText(event.getOrganizer());
+        holder.entriesTextView.setText(event.getMaxEntries() > 0 ? String.valueOf(event.getMaxEntries()) : "Unlimited");
 
         // Format and set the event date
         if (event.getEventDate() != null) {
@@ -103,6 +111,29 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
             transaction.commit();
         });
     }
+  /**
+        //Format and set the draw date
+        if (event.getDrawDate() != null) {
+            Date drawDate = event.getDrawDate().toDate();
+            String formattedDrawDate = DateFormat.format("MM/dd/yyyy", drawDate).toString();
+            holder.drawDateTextView.setText(formattedDrawDate);
+        } else {
+            holder.drawDateTextView.setText("N/A");
+        }
+
+        // Set the click listener to navigate to EventDetailsFragment with the event ID
+        holder.itemView.setOnClickListener(v -> {
+            EventDetailsFragment detailsFragment = new EventDetailsFragment();
+
+            // Bundle event ID to pass to the fragment
+            Bundle args = new Bundle();
+            args.putString("id", event.getId());
+
+            // Navigation controller to replace fragment
+            NavController navController = Navigation.findNavController((Activity) context, R.id.nav_host_fragment_activity_main);
+            navController.navigate(R.id.nav_host_fragment_activity_main, args);
+        });
+    }*/
 
     /**
      * Returns total number of items in the list
