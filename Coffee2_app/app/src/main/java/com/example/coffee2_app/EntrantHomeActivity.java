@@ -96,7 +96,7 @@ public class EntrantHomeActivity extends AppCompatActivity {
         // Initialize RecyclerView and Adapter
         eventRecyclerView = findViewById(R.id.view_event_list);
         eventRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        eventAdapter = new EntrantEventAdapter(eventList, this, getSupportFragmentManager(), statusList);
+        eventAdapter = new EntrantEventAdapter(eventList, this, getSupportFragmentManager(), statusList, entrant.getUserId());
         eventRecyclerView.setAdapter(eventAdapter);
 
         // Fetch events from Firestore
@@ -135,6 +135,7 @@ public class EntrantHomeActivity extends AppCompatActivity {
                                             } else {
                                                 event = new Event(eventName, organizerID, collectGeo, hashQrData, eventDate, drawDate);
                                             }
+                                            event.setId(eventId);
                                             eventList.add(event);
                                             Log.d("FirestoreData", "Added Event: " + event.getName());
                                             eventAdapter.notifyDataSetChanged(); // Refresh the adapter after each fetch
