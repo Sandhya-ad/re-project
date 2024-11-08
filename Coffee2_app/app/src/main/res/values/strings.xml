@@ -20,7 +20,7 @@
     <string name="event">Event</string>
     <string name="location">LOCATION</string>
     <string name="time_left">Time Left: XX:XX</string>
-    <string name="entires_d">Entires: %d</string>
+    <string name="entries_d">Entries: %d</string>
     <string name="view_entries">View Entries</string>
     <string name="share_qr_code">Create/Share QR Code</string>
     <string name="end_draw">End Draw</string>

@@ -1,5 +1,6 @@
 package com.example.coffee2_app.Organizer_ui.myevents;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -59,6 +60,9 @@ public class MyEventsFragment extends Fragment {
 
         // Handle Back Button click
         backButton.setOnClickListener(v -> getActivity().onBackPressed()); // Navigate back when clicked
+
+        // Event Card click listener
+        //binding.viewEventList.setOnClickListener(view -> showEventDetailsFragment());
 
         // Fetch events from Firestore
         fetchEvents();

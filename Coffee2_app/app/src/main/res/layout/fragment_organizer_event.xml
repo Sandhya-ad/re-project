@@ -54,96 +54,95 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/event_image"
+        <FrameLayout
+            android:id="@+id/fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/event_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="@string/placeholder_event_title"
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="32sp"
-            android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/event_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:srcCompat="@tools:sample/avatars" />
 
-        <TextView
-            android:id="@+id/event_organizer_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAlignment="center"
-            android:text="Organizer Name"
-            android:textStyle="normal" />
+            <TextView
+                android:id="@+id/event_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="@string/placeholder_event_title"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="32sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/event_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAlignment="center"
-            android:text="@string/location"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/event_organizer_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAlignment="center"
+                android:text="Organizer Name"
+                android:textStyle="normal" />
 
-        <TextView
-            android:id="@+id/event_time_left"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAlignment="center"
-            android:text="@string/time_left"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/event_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAlignment="center"
+                android:text="@string/location"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/event_entries"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAlignment="center"
-            android:text="@string/entires_d"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/event_time_left"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAlignment="center"
+                android:text="@string/time_left"
+                android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/event_view_entries"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/view_entries"
-            android:layout_marginTop="32dp"
-            android:backgroundTint="@color/main_blue"
-            />
+            <TextView
+                android:id="@+id/event_entries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAlignment="center"
+                android:text="@string/entries_d"
+                android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/event_share_qr"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/share_qr_code"
-            android:layout_marginTop="2dp"
-            android:backgroundTint="@color/main_blue"
-            />
+            <Button
+                android:id="@+id/event_view_entries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/view_entries"
+                android:layout_marginTop="32dp"
+                android:backgroundTint="@color/main_blue" />
 
-        <Button
-            android:id="@+id/event_edit_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/edit_event"
-            android:layout_marginTop="2dp"
-            android:backgroundTint="@color/light_grey"
-            />
+            <Button
+                android:id="@+id/event_share_qr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/share_qr_code"
+                android:layout_marginTop="2dp"
+                android:backgroundTint="@color/main_blue" />
 
-        <Button
-            android:id="@+id/event_end_draw"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/end_draw"
-            android:layout_marginTop="2dp"
-            android:backgroundTint="@color/main_red"
-            />
+            <Button
+                android:id="@+id/event_edit_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_event"
+                android:layout_marginTop="2dp"
+                android:backgroundTint="@color/light_grey" />
 
-
+            <Button
+                android:id="@+id/event_end_draw"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/end_draw"
+                android:layout_marginTop="2dp"
+                android:backgroundTint="@color/main_red" />
+        </FrameLayout>
     </LinearLayout>
-
 </LinearLayout>
