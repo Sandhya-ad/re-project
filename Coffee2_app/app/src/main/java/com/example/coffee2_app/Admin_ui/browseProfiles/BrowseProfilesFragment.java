@@ -16,6 +16,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fragment to display a list of user profiles for the admin.
+ */
 public class BrowseProfilesFragment extends Fragment {
 
     private FirebaseFirestore db;
@@ -23,6 +26,15 @@ public class BrowseProfilesFragment extends Fragment {
     private List<User> usersList;
     private FragmentAdminProfilesBinding binding; // Binding object
 
+    /**
+     * Inflates the layout for this fragment and initializes the view binding,
+     * RecyclerView, adapter, and data source.
+     *
+     * @param inflater           LayoutInflater object to inflate views in the fragment
+     * @param container          Parent view to contain the fragment's UI
+     * @param savedInstanceState Bundle object containing the fragment's saved state
+     * @return Root view of the binding for this fragment
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -43,6 +55,10 @@ public class BrowseProfilesFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Loads user profiles from Firestore and populates the users list.
+     * Only adds users with non-null Entrant details to the list.
+     */
     private void loadProfiles() {
         db.collection("users")
                 .get()
@@ -61,6 +77,9 @@ public class BrowseProfilesFragment extends Fragment {
                 });
     }
 
+    /**
+     * Releases binding resources when the view is destroyed to avoid memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

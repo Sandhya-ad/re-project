@@ -15,12 +15,22 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
 
+/**
+ * Main activity that allows users to enter the app as Entrant, Organizer, or Admin.
+ * It verifies the user's status and provides navigation based on the assigned role.
+ */
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private String deviceID;
     private User currentUser;
 
+    /**
+     * Initializes the activity, sets up Firestore, retrieves the device ID,
+     * and manages visibility for role-based buttons.
+     *
+     * @param savedInstanceState Bundle containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +61,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets up click listeners for Entrant, Organizer, and Admin buttons.
+     * Determines role-specific actions and navigates to appropriate activities.
+     *
+     * @param buttonEntrant   Button for Entrant role.
+     * @param buttonOrganizer Button for Organizer role.
+     * @param buttonAdmin     Button for Admin role.
+     */
     private void setupButtonListeners(Button buttonEntrant, Button buttonOrganizer, Button buttonAdmin) {
         buttonEntrant.setOnClickListener(v -> {
             checkIsDeleted(deviceID, isDeleted -> {
@@ -103,6 +121,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Checks if the user exists in Firestore. If not, creates a new user with the device ID.
+     *
+     * @param deviceID The device ID to identify the user document in Firestore.
+     * @param callback Callback function to handle the loaded or newly created user.
+     */
     private void checkAndAddUser(String deviceID, UserCallback callback) {
         DocumentReference docRef = db.collection("users").document(deviceID);
 
@@ -131,6 +155,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Checks if the Entrant profile has been deleted for the specified device ID.
+     * Calls the provided callback with the deletion status.
+     *
+     * @param deviceID The device ID to check for deletion status in Firestore.
+     * @param callback Callback function to handle the deletion check result.
+     */
     private void checkIsDeleted(String deviceID, DeletionCallback callback) {
         DocumentReference docRef = db.collection("users").document(deviceID);
 
@@ -150,10 +181,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Callback interface to handle user loading events.
+     */
     interface UserCallback {
         void onUserLoaded(User user);
     }
 
+    /**
+     * Callback interface to handle deletion check results.
+     */
     interface DeletionCallback {
         void onDeletionChecked(boolean isDeleted);
     }
