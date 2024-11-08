@@ -1,6 +1,5 @@
 package com.example.coffee2_app.Organizer_ui.profile;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,20 +12,14 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.coffee2_app.DatabaseHelper;
-import com.example.coffee2_app.EntrantHomeActivity;
-import com.example.coffee2_app.Image;
 import com.example.coffee2_app.ImageGenerator;
-import com.example.coffee2_app.MainActivity;
 import com.example.coffee2_app.Organizer;
 import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
@@ -39,6 +32,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Fragment for displaying and editing the organizer's profile and changing profile picture.
+ */
 public class ProfileFragment extends Fragment {
 
     private Organizer organizer;
@@ -49,6 +45,14 @@ public class ProfileFragment extends Fragment {
     private String deviceID;
     private Bitmap bmp;
 
+    /**
+     * Inflates the layout, initializes Firestore and click listeners.
+     *
+     * @param inflater  LayoutInflater to inflate views in the fragment
+     * @param container          Parent view to contain the fragment's UI
+     * @param savedInstanceState Bundle containing the fragment's saved state
+     * @return The root view of the fragment
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -74,7 +78,7 @@ public class ProfileFragment extends Fragment {
         }
 
         // Hide Save Button by default
-        //binding.editProfileButton.setVisibility(View.GONE);
+        // binding.editProfileButton.setVisibility(View.GONE);
 
         // Back button listener
         binding.backButton.setOnClickListener(v -> getActivity().onBackPressed());
@@ -131,11 +135,18 @@ public class ProfileFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Opens the image picker to select a new profile picture.
+     */
     private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
+    /**
+     * Displays organizer details in the UI fields.
+     * Gets profile picture from Firestore, or generates a default image.
+     */
     private void displayOrganizerDetails() {
         if(organizer.getName() != null) { binding.organizerName.setText(organizer.getName()); }
         else { binding.organizerName.setText(""); } // Case where changes are cancelled on a null
@@ -190,6 +201,14 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Called when an activity result is returned, such as selecting an image.
+     * Processes and displays the selected image if successful.
+     *
+     * @param requestCode The integer request code originally supplied to startActivityForResult().
+     * @param resultCode The integer result code returned by the child activity.
+     * @param data An Intent containing the data from the activity result.
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -207,6 +226,9 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Toggles between view and edit mode for the profile. Toggles visilibity of Save button.
+     */
     private void toggleEditMode() {
         isEditing = !isEditing;
 
@@ -224,6 +246,11 @@ public class ProfileFragment extends Fragment {
         binding.organizerImage.setClickable(isEditing);
     }
 
+    /**
+     * Enables or disables input fields for editing, and sets background colors accordingly.
+     *
+     * @param enabled True if edit mode is enabled, false otherwise.
+     */
     private void setEditMode(boolean enabled) {
         binding.organizerName.setEnabled(enabled);
         binding.organizerEmail.setEnabled(enabled);
@@ -244,6 +271,9 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Validates and saves the profile data entered, updating organizer and Firebase
+     */
     private void saveProfileData() {
         boolean ret = true;
 
@@ -280,6 +310,9 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Clears the binding reference when the view is destroyed to prevent memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
