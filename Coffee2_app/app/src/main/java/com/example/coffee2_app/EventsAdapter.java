@@ -1,8 +1,9 @@
 package com.example.coffee2_app;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +11,19 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.coffee2_app.Organizer_ui.myevents.EventDetailsFragment;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewHolder> {
+
     private List<Event> events;
     private Fragment currentFragment;
 
@@ -56,19 +62,29 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
         }
 
         // Set the click listener for the item
-        holder.itemView.setOnClickListener(v -> {
-            // Replace the current fragment with EventDetailsFragment
-            EventDetailsFragment detailsFragment = new EventDetailsFragment();
+        holder.itemView.setOnClickListener(view -> {
 
-            // Passing information to EventDetailsFragment
+            EventDetailsFragment eventDetailsFragment = new EventDetailsFragment();
+
             Bundle args = new Bundle();
-            args.putString("id", event.getId());
-            detailsFragment.setArguments(args);
+            args.putString("name", event.getName());
+            args.putString("eventID", event.getOrganizer());
+            args.putInt("maxEntries", event.getMaxEntries());
+            args.putBoolean("collectGeo", event.isCollectGeo());
+            args.putString("hashQRData", event.getHashQrData());
+            Date date = event.getEventDate().toDate();
+            args.putString("eventDate", new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH).format(date));
 
-            currentFragment.getActivity().getSupportFragmentManager().beginTransaction()
-                   // .replace(R.id.fragment_container, detailsFragment)
-                    .addToBackStack(null)
-                    .commit();
+            eventDetailsFragment.setArguments(args);
+
+            // Get context from the ViewHolder's itemView
+            Context context = holder.itemView.getContext();
+
+            // Replace current fragment with EventDetailsFragment
+            FragmentTransaction transaction = ((FragmentActivity) context).getSupportFragmentManager().beginTransaction();
+            transaction.replace(android.R.id.content, eventDetailsFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
         });
     }
 

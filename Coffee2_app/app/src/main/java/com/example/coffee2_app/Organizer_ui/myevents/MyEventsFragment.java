@@ -1,9 +1,6 @@
 package com.example.coffee2_app.Organizer_ui.myevents;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,18 +9,15 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.coffee2_app.EntrantHomeActivity;
 import com.example.coffee2_app.Event;
 import com.example.coffee2_app.EventsAdapter;
 import com.example.coffee2_app.Organizer;
 import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
-import com.example.coffee2_app.User;
 import com.example.coffee2_app.databinding.FragmentMyEventsBinding;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -46,6 +40,7 @@ public class MyEventsFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentMyEventsBinding.inflate(inflater, container, false); // Initialize binding
         View root = binding.getRoot();
+        Log.d("EventDetailsFragment", "onCreateView called");
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -61,9 +56,6 @@ public class MyEventsFragment extends Fragment {
 
         // Handle Back Button click
         backButton.setOnClickListener(v -> getActivity().onBackPressed()); // Navigate back when clicked
-
-        // Event Card click listener
-        //binding.viewEventList.setOnClickListener(view -> showEventDetailsFragment());
 
         // Fetch events from Firestore
         fetchEvents();
@@ -84,7 +76,7 @@ public class MyEventsFragment extends Fragment {
         }
 
         if (organizer != null) {
-            Log.d("MEF_Org", "Organizer ID: " + organizer.getUserID());
+            Log.d("MEF_Org", "Organizer ID in MyEvents: " + organizer.getUserID());
         } else {
             Log.e("MEF_Org", "Organizer is null");
             Toast.makeText(getActivity(), "Profile Error: Organizer data is missing.", Toast.LENGTH_SHORT).show();
@@ -96,6 +88,31 @@ public class MyEventsFragment extends Fragment {
             Log.e("MEF_Dev", "DeviceID is null");
         }
     }
+
+    /*
+    private void showEventDetailsFragment(Event event) {
+        // Create a new instance of EventDetailsFragment
+        EventDetailsFragment eventDetailsFragment = new EventDetailsFragment();
+
+        // Pass event data to the fragment using a Bundle
+        Bundle args = new Bundle();
+        args.putString("name", event.getName());
+        args.putString("userID", event.getUserID());
+        args.putInt("maxEntries", event.getMaxEntries());
+        args.putBoolean("collectGeo", event.isCollectGeo());
+        args.putString("hashQRData", event.getHashQRData());
+        args.putSerializable("eventDate", event.getEventDate());
+        args.putSerializable("drawDate", event.getDrawDate());
+
+        eventDetailsFragment.setArguments(args);
+
+        // Navigate to EventDetailsFragment
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, eventDetailsFragment) // Replace with your container ID
+                .addToBackStack(null)
+                .commit();
+    }*/
+
 
     private void fetchEvents() {
         db.collection("events") // Use your collection name

@@ -20,7 +20,7 @@ public class OrganizerHomeActivity extends AppCompatActivity {
     private OrganizerMainBinding binding;
     private Organizer organizer;
     private FirebaseFirestore db;
-    private String deviceID = "id234";
+    private String deviceID;
 
     /**
      * Returns Organizer for other Fragments
