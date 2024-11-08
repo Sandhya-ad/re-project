@@ -36,7 +36,7 @@ public class EntrantHomeActivity extends AppCompatActivity {
     private Entrant entrant;
     private String deviceID;
     private List<Event> eventList = new ArrayList<>();
-    private EventsAdapter eventAdapter;
+    private EntrantEventAdapter eventAdapter;
     private RecyclerView eventRecyclerView;
 
 
@@ -95,7 +95,7 @@ public class EntrantHomeActivity extends AppCompatActivity {
         // Initialize RecyclerView and Adapter
         eventRecyclerView = findViewById(R.id.view_event_list);
         eventRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        eventAdapter = new EventsAdapter(eventList, this, getSupportFragmentManager());
+        eventAdapter = new EntrantEventAdapter(eventList, this, getSupportFragmentManager());
         eventRecyclerView.setAdapter(eventAdapter);
 
         // Fetch events from Firestore
