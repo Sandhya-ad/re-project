@@ -56,4 +56,6 @@
     <string name="enter_description">Enter Description...</string>
     <string name="set_date">Set Date</string>
     <string name="edit_profile">Edit Profile</string>
+    <string name="choose_image">Choose Image...</string>
+    <string name="remove_image">Remove Image</string>
 </resources>

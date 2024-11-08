@@ -72,11 +72,12 @@ public class MyEventsFragment extends Fragment {
         backButton.setOnClickListener(v -> getActivity().onBackPressed()); // Navigate back when clicked
 
         // Fetch events from Firestore
-        fetchEvents();
+        //fetchEvents();
 
         return root;
     }
 
+    /*
     private void fetchEvents() {
         db.collection("events") // Use your collection name
                 .get()
@@ -99,7 +100,7 @@ public class MyEventsFragment extends Fragment {
                         Toast.makeText(getContext(), "Error getting documents: " + task.getException(), Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
+    }*/
 
     @Override
     public void onDestroyView() {

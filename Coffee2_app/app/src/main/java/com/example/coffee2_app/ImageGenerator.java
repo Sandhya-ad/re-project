@@ -18,8 +18,13 @@ public class ImageGenerator {
     private String name;
     private final Random rand = new Random();
 
+    /**
+     * Constructor for ImageGenerator.
+     * @param name
+     */
     public ImageGenerator(String name) {
         this.name = name;
+        this.genImg();
     }
 
     private void genImg() {
@@ -76,7 +81,7 @@ public class ImageGenerator {
      */
     public void setName(String name) {
         this.name = name;
-        genImg();
+        this.genImg();
     }
 
     /**
@@ -84,7 +89,6 @@ public class ImageGenerator {
      * @return Deterministic Image
      */
     public Bitmap getImg() {
-        this.genImg();
         return imgBmp;
     }
 }
