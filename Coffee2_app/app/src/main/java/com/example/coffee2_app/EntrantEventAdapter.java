@@ -137,7 +137,152 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
 
                 dialog.show();
 
-}
+} else if (Objects.equals(status_str, "waitlisted")){
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Event Status")
+                        .setMessage("Do you want to be waitlisted for this event?")
+                        .setCancelable(true)  // Allows dialog to be cancelable
+                        // Handle Accept
+                        .setPositiveButton("Yes", null)  // Initially set to null
+                        // Handle Decline
+                        .setNegativeButton("No, I don't", null);  // Initially set to null
+
+                AlertDialog dialog = builder.create();
+
+                // Set the button click listeners after dialog is created
+                dialog.setOnShowListener(dialogInterface -> {
+                    // Get button references
+                    Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+                    // Style buttons
+                    positiveButton.setTextColor(context.getResources().getColor(R.color.black));
+                    negativeButton.setTextColor(context.getResources().getColor(android.R.color.black));
+
+                    negativeButton.setOnClickListener(view -> {
+                        db.collection("users").document(userID).collection("events").document(event.getId())
+                                .update("status", "cancelled")
+                                .addOnSuccessListener(aVoid -> {
+                                    status_str = "cancelled";
+                                    holder.eventStatusTextView.setText("cancelled");
+
+                                    dialog.dismiss();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("Firestore", "Error updating document", e);
+                                    dialog.dismiss();
+                                });
+                    });
+                });
+
+                dialog.show();
+            } else if ((Objects.equals(status_str, "not-chosen")) || (Objects.equals(status_str, "cancelled"))){
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                String message;
+                if (Objects.equals(status_str, "not-chosen")){
+                    message = "You were not chosen. Do you want to be waitlisted for this event?";
+                }
+                else{
+                    message = "You're cancelled now, do you want to be waitlisted?";
+                }
+                builder.setTitle("Event Status")
+                        .setMessage(message)
+                        .setCancelable(true)  // Allows dialog to be cancelable
+                        // Handle Accept
+                        .setPositiveButton("Yes", null)  // Initially set to null
+                        // Handle Decline
+                        .setNegativeButton("No, I don't", null);  // Initially set to null
+
+                AlertDialog dialog = builder.create();
+
+// Set the button click listeners after dialog is created
+                dialog.setOnShowListener(dialogInterface -> {
+                    // Get button references
+                    Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+                    // Style buttons
+                    positiveButton.setTextColor(context.getResources().getColor(R.color.black));
+                    negativeButton.setTextColor(context.getResources().getColor(android.R.color.black));
+
+                    // Set click listeners for buttons
+                    positiveButton.setOnClickListener(view -> {
+                        db.collection("users").document(userID).collection("events").document(event.getId())
+                                .update("status", "waitlisted")
+                                .addOnSuccessListener(aVoid -> {
+                                    // Warn for geolocation
+                                    if (event.isCollectGeo()) {
+                                        AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
+                                        builder2.setTitle("Action Required")
+                                                .setMessage("Organizer collects your geolocation. Continue?")
+                                                .setCancelable(true)  // Allows dialog to be cancelable
+                                                // Handle Accept
+                                                .setPositiveButton("Yes", null)  // Initially set to null
+                                                // Handle Decline
+                                                .setNegativeButton("No", null);  // Initially set to null
+
+                                        AlertDialog dialog2 = builder2.create();
+
+                                        // Set the button click listeners after dialog2 is created
+                                        dialog2.setOnShowListener(dialogInterface2 -> {
+                                            // Get button references for dialog2
+                                            Button positiveButton2 = dialog2.getButton(AlertDialog.BUTTON_POSITIVE);
+                                            Button negativeButton2 = dialog2.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+                                            // Style buttons for dialog2
+                                            positiveButton2.setTextColor(context.getResources().getColor(R.color.black));
+                                            negativeButton2.setTextColor(context.getResources().getColor(android.R.color.black));
+
+                                            // Set click listeners for buttons in dialog2
+                                            positiveButton2.setOnClickListener(view2 -> {
+                                                db.collection("users").document(userID).collection("events").document(event.getId())
+                                                        .update("status", "waitlisted")
+                                                        .addOnSuccessListener(aVoid2 -> {
+                                                            status_str = "waitlisted";
+                                                            holder.eventStatusTextView.setText("waitlisted");
+                                                            dialog2.dismiss();  // Close dialog2
+                                                        })
+                                                        .addOnFailureListener(e -> {
+                                                            Log.e("Firestore", "Error updating document", e);
+                                                            dialog2.dismiss();  // Close dialog2
+                                                        });
+                                            });
+
+                                            negativeButton2.setOnClickListener(view2 -> {
+                                                status_str = "cancelled";
+                                                holder.eventStatusTextView.setText("cancelled");
+
+                                                dialog2.dismiss();  // Close dialog2
+                                            });
+                                        });
+                                        dialog2.show();  // Show dialog2
+                                    }
+                                    dialog.dismiss();  // Close dialog
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("Firestore", "Error updating document", e);
+                                    dialog.dismiss();  // Close dialog
+                                });
+                    });
+
+                    negativeButton.setOnClickListener(view -> {
+                        db.collection("users").document(userID).collection("events").document(event.getId())
+                                .update("status", "cancelled")
+                                .addOnSuccessListener(aVoid -> {
+                                    status_str = "cancelled";
+                                    holder.eventStatusTextView.setText("cancelled");
+
+                                    dialog.dismiss();  // Close dialog
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("Firestore", "Error updating document", e);
+                                    dialog.dismiss();  // Close dialog
+                                });
+                    });
+                });
+
+                dialog.show();
+            }
             // Navigation controller to replace fragment
             //NavController navController = Navigation.findNavController((Activity) context, R.id.nav_host_fragment_activity_main);
             //navController.navigate(R.id.nav_host_fragment_activity_main, args);
