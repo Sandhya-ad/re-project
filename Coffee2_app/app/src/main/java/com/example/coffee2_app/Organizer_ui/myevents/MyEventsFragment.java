@@ -1,5 +1,6 @@
 package com.example.coffee2_app.Organizer_ui.myevents;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -83,7 +84,7 @@ public class MyEventsFragment extends Fragment {
         }
 
         if (organizer != null) {
-            Log.d("MEF_Org", "Organizer Address: " + organizer.getAddress());
+            Log.d("MEF_Org", "Organizer ID: " + organizer.getUserID());
         } else {
             Log.e("MEF_Org", "Organizer is null");
             Toast.makeText(getActivity(), "Profile Error: Organizer data is missing.", Toast.LENGTH_SHORT).show();
@@ -103,16 +104,17 @@ public class MyEventsFragment extends Fragment {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String name = document.getString("name");
-                            String userID = document.getString("userID");
-                            //Organizer organizer = new Organizer("");
+                            String userID = document.getString("facilityID");
                             int maxEntries = document.getLong("entriesLimit").intValue();
                             boolean collectGeo = document.getBoolean("collectGeoStatus");
                             String hashQRData = "";
                             Timestamp eventDate = document.getTimestamp("eventDate");
                             Timestamp drawDate = document.getTimestamp("drawDate");
 
-                            Event event = new Event(name, userID, maxEntries, collectGeo, hashQRData, eventDate, drawDate);
-                            eventList.add(event);
+                            if (userID.equals(organizer.getUserID())){
+                                Event event = new Event(name, userID, maxEntries, collectGeo, hashQRData, eventDate, drawDate);
+                                eventList.add(event);
+                            }
                         }
                         eventsAdapter.notifyDataSetChanged(); // Notify the adapter that data has changed
                     } else {
