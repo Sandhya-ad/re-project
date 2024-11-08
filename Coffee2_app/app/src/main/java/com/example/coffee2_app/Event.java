@@ -23,6 +23,7 @@ public class Event implements Serializable {
     private Timestamp eventDate;
     private Timestamp drawDate;
     private Bitmap QRCode;
+    private String imageUrl;
 
     // No-argument constructor (Required for Firestore)
     public Event() {}
@@ -243,5 +244,16 @@ public class Event implements Serializable {
             generateQRCode();
         }
         return this.QRCode;
+    }
+
+
+
+    // Getter and Setter
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
