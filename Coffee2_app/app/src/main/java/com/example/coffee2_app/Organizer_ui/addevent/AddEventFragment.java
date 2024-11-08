@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.coffee2_app.Organizer;
+import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentAddEventBinding;
 import com.google.firebase.Timestamp;
@@ -26,6 +28,8 @@ import java.util.Map;
 
 public class AddEventFragment extends Fragment {
 
+    private Organizer organizer;
+    private String deviceID;
     private FragmentAddEventBinding binding;
     private FirebaseFirestore db;
 
@@ -51,6 +55,32 @@ public class AddEventFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        OrganizerHomeActivity activity = (OrganizerHomeActivity) getActivity();
+        if (activity != null) {
+            organizer = activity.getOrganizer(); // Get the Organizer instance
+            deviceID = activity.getDeviceID();
+            Log.d("AEF_get", "Activity works");
+        } else {
+            Log.e("AEF_get", "Activity null");
+        }
+
+        if (organizer != null) {
+            Log.d("AEF_Org", "Organizer ID: " + organizer.getUserID());
+        } else {
+            Log.e("AEF_Org", "Organizer is null");
+            Toast.makeText(getActivity(), "Profile Error: Organizer data is missing.", Toast.LENGTH_SHORT).show();
+        }
+
+        if (deviceID != null) {
+            Log.d("AEF_Dev", "DeviceID in MyEvents: " + deviceID);
+        } else {
+            Log.e("AEF_Dev", "DeviceID is null");
+        }
+    }
+
     private void openDatePicker(TextView dateView) {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -70,11 +100,11 @@ public class AddEventFragment extends Fragment {
         String name = binding.eventName.getText().toString().trim();
         String eventDateString = binding.eventDate.getText().toString().trim();
         String drawDateString = binding.eventDrawDate.getText().toString().trim();
-        String entries = binding.eventEntries.getText().toString().trim();
+        String entriesLimit = binding.eventEntries.getText().toString().trim();
         boolean geolocation = binding.eventGeolocation.isChecked();
 
         // Valid Entry Logic
-        if (name.isEmpty() || eventDateString.isEmpty() || drawDateString.isEmpty() || entries.isEmpty()) {
+        if (name.isEmpty() || eventDateString.isEmpty() || drawDateString.isEmpty() || entriesLimit.isEmpty()) {
             Toast.makeText(getContext(), "Please fill out all fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -101,10 +131,9 @@ public class AddEventFragment extends Fragment {
 
         Timestamp eventTimestamp = new Timestamp(eventDate);
         Timestamp drawTimestamp = new Timestamp(drawDate);
-
         Calendar eventCalendar = Calendar.getInstance();
-        eventCalendar.setTime(eventDate);
         Calendar drawCalendar = Calendar.getInstance();
+        eventCalendar.setTime(eventDate);
         drawCalendar.setTime(drawDate);
 
         Calendar currentDate = Calendar.getInstance();
@@ -140,16 +169,17 @@ public class AddEventFragment extends Fragment {
 //        }
 
         //Just to check before the db is implemented
-        String message = "Event Created - Name: " + name + ", Event Date: " + eventDateString + ", Draw Date: " + drawDateString + ", Entries: " + entries + ", Geolocation: " + (geolocation ? "On" : "Off");
+        String message = "Event Created - Name: " + name + ", Event Date: " + eventDateString + ", Draw Date: " + drawDateString + ", Entries: " + entriesLimit + ", Geolocation: " + (geolocation ? "On" : "Off");
 
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
 
         // Create a map for the event data
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
+        eventData.put("userID", organizer.getUserID());
         eventData.put("eventDate", eventTimestamp);
         eventData.put("drawDate", drawTimestamp);
-        eventData.put("entriesLimit", entries);
+        eventData.put("entriesLimit", Integer.parseInt(entriesLimit));
         eventData.put("collectGeoStatus", geolocation);
 
         // Write to Firestore
