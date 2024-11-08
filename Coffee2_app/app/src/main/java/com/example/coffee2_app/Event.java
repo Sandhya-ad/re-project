@@ -1,14 +1,20 @@
 package com.example.coffee2_app;
 
+import android.graphics.Bitmap;
+
 import com.google.firebase.Timestamp;
+import com.google.zxing.BarcodeFormat;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Event implements Serializable {
     private String id;
     private String name;
-    private User organizer;
+    private String organizerID;
     private int maxEntries;
     private boolean collectGeo;
     private List<User> attendees;
@@ -16,17 +22,19 @@ public class Event implements Serializable {
     private String hashQrData;
     private Timestamp eventDate;
     private Timestamp drawDate;
+    private Bitmap QRCode;
+    private String imageUrl;
 
     // No-argument constructor (Required for Firestore)
     public Event() {}
 
     //Constructor if no maxAttendees
-    public Event(String id, String name, User organizer, boolean collectGeo, String hashQrData, Timestamp eventDate, Timestamp drawDate) {
-        this.id = id;
+    public Event(String name, String organizerID, boolean collectGeo, String hashQrData, Timestamp eventDate, Timestamp drawDate) {
+        this.id = UUID.randomUUID().toString();
         this.name = name;
         this.attendees = new ArrayList<>();
         this.waitingList = new ArrayList<>();
-        this.organizer = organizer;
+        this.organizerID = organizerID;
         this.eventDate= eventDate;
         this.drawDate = drawDate;
         this.collectGeo = collectGeo;
@@ -35,17 +43,24 @@ public class Event implements Serializable {
     }
 
     // Constructor if maxAttendees
-    public Event(String id, String name, User organizer, int maxEntries, boolean collectGeo, String hashQrData, Timestamp eventDate, Timestamp drawDate) {
-        this.id = id;
+    public Event(String name, String organizerID, int maxEntries, boolean collectGeo, String hashQrData, Timestamp eventDate, Timestamp drawDate) {
+        this.id = UUID.randomUUID().toString();
         this.name = name;
         this.attendees = new ArrayList<>();
         this.waitingList = new ArrayList<>();
-        this.organizer = organizer;
+        this.organizerID = organizerID;
         this.eventDate= eventDate;
         this.drawDate = drawDate;
         this.collectGeo = collectGeo;
         this.hashQrData = hashQrData;
         this.maxEntries = maxEntries;
+    }
+    //constructor to check the events for Entrants
+    public Event(String sampleEvent) {
+        this.id = UUID.randomUUID().toString();
+        this.name = sampleEvent;
+        this.attendees = new ArrayList<>();
+        this.waitingList = new ArrayList<>();
     }
 
     public String getId() {
@@ -64,12 +79,12 @@ public class Event implements Serializable {
         this.name = name;
     }
 
-    public User getOrganizer() {
-        return organizer;
+    public String getOrganizer() {
+        return organizerID;
     }
 
-    public void setOrganizer(User organizer) {
-        this.organizer = organizer;
+    public void setOrganizer(String organizer) {
+        this.organizerID = organizerID;
     }
 
     public int getMaxEntries() {
@@ -126,5 +141,38 @@ public class Event implements Serializable {
 
     public void setDrawDate(Timestamp drawDate) {
         this.drawDate = drawDate;
+    }
+
+    private void generateQRCode() {
+        BarcodeEncoder QRGenerator = new BarcodeEncoder();
+
+        try {
+            this.QRCode = QRGenerator.encodeBitmap(this.id, BarcodeFormat.QR_CODE, 400, 400);
+        }
+        catch (Exception e) {
+            System.err.println(e);
+        }
+    }
+
+    /**
+     * Returns the hashed QR Code containing the Event's UUID.
+     * @return QR Code of Event UUID
+     */
+    public Bitmap getQRCode() {
+        if (this.QRCode == null) {
+            generateQRCode();
+        }
+        return this.QRCode;
+    }
+
+
+
+    // Getter and Setter
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

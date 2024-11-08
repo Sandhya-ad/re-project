@@ -66,7 +66,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
             detailsFragment.setArguments(args);
 
             currentFragment.getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, detailsFragment)
+                   // .replace(R.id.fragment_container, detailsFragment)
                     .addToBackStack(null)
                     .commit();
         });

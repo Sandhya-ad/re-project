@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/admin_navigation_profiles">
+
+    <fragment
+        android:id="@+id/admin_navigation_profiles"
+        android:name="com.example.coffee2_app.Admin_ui.browseProfiles.BrowseProfilesFragment"
+        android:label="@string/profiles"
+        tools:layout="@layout/fragment_admin_profiles" />
+
+    <fragment
+        android:id="@+id/admin_navigation_events"
+        android:name="com.example.coffee2_app.Admin_ui.browseEvents.BrowseEventsFragment"
+        android:label="@string/events"
+        tools:layout="@layout/fragment_admin_events" />
+
+    <fragment
+        android:id="@+id/admin_navigation_facilities"
+        android:name="com.example.coffee2_app.Admin_ui.browseFacilities.BrowseFacilitiesFragment"
+        android:label="@string/facilities"
+        tools:layout="@layout/fragment_admin_facilities" />
+
+    <fragment
+        android:id="@+id/admin_navigation_images"
+        android:name="com.example.coffee2_app.Admin_ui.browseImages.BrowseImagesFragment"
+        android:label="@string/images"
+        tools:layout="@layout/fragment_admin_images" />
+</navigation>
