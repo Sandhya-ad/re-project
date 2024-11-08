@@ -43,7 +43,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = events.get(position);
         holder.nameTextView.setText(event.getName());
-        holder.entriesTextView.setText(String.valueOf(event.getMaxEntries()));
+        holder.addressTextView.setText(event.getOrganizer());
 
         // Format and set the event date
         if (event.getEventDate() != null) {
@@ -52,13 +52,6 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
             holder.eventDateTextView.setText(formattedEventDate);
         } else {
             holder.eventDateTextView.setText("N/A");
-        }
-        if (event.getDrawDate() != null) {
-            Date drawDate = event.getDrawDate().toDate();
-            String formattedDrawDate = DateFormat.format("MM/dd/yyyy", drawDate).toString();
-            holder.drawDateTextView.setText(formattedDrawDate);
-        } else {
-            holder.drawDateTextView.setText("N/A");
         }
 
         // Set the click listener for the item
@@ -95,16 +88,14 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
 
     static class EventViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
+        TextView addressTextView;
         TextView eventDateTextView;
-        TextView drawDateTextView;
-        TextView entriesTextView;
 
         EventViewHolder(View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.event_name);
+            addressTextView = itemView.findViewById(R.id.event_address);
             eventDateTextView = itemView.findViewById(R.id.event_date);
-            drawDateTextView = itemView.findViewById(R.id.event_draw_date);
-            entriesTextView = itemView.findViewById(R.id.event_entries);
         }
     }
 }

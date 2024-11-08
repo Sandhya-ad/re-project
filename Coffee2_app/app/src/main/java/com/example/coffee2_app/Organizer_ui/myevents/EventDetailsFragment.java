@@ -1,5 +1,6 @@
 package com.example.coffee2_app.Organizer_ui.myevents;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.coffee2_app.Organizer;
 import com.example.coffee2_app.OrganizerHomeActivity;
@@ -108,6 +111,14 @@ public class EventDetailsFragment extends Fragment {
     }
 
     private void showEntriesFragment() {
+        EntriesFragment entriesFragment = new EntriesFragment();
+
+        Context context = getContext();
+
+        FragmentTransaction transaction = ((FragmentActivity) context).getSupportFragmentManager().beginTransaction();
+        transaction.replace(android.R.id.content, entriesFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     private void showQRCreateFragment() {

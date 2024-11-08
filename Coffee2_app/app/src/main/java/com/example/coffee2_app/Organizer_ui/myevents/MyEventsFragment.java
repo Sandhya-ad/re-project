@@ -31,7 +31,6 @@ public class MyEventsFragment extends Fragment {
     private Organizer organizer;
     private FragmentMyEventsBinding binding;
     private FirebaseFirestore db;
-    private RecyclerView recyclerView;
     private EventsAdapter eventsAdapter; // Create an adapter for your RecyclerView
     private List<Event> eventList; // Create a list to hold events
     private String deviceID;
@@ -88,30 +87,6 @@ public class MyEventsFragment extends Fragment {
             Log.e("MEF_Dev", "DeviceID is null");
         }
     }
-
-    /*
-    private void showEventDetailsFragment(Event event) {
-        // Create a new instance of EventDetailsFragment
-        EventDetailsFragment eventDetailsFragment = new EventDetailsFragment();
-
-        // Pass event data to the fragment using a Bundle
-        Bundle args = new Bundle();
-        args.putString("name", event.getName());
-        args.putString("userID", event.getUserID());
-        args.putInt("maxEntries", event.getMaxEntries());
-        args.putBoolean("collectGeo", event.isCollectGeo());
-        args.putString("hashQRData", event.getHashQRData());
-        args.putSerializable("eventDate", event.getEventDate());
-        args.putSerializable("drawDate", event.getDrawDate());
-
-        eventDetailsFragment.setArguments(args);
-
-        // Navigate to EventDetailsFragment
-        getParentFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, eventDetailsFragment) // Replace with your container ID
-                .addToBackStack(null)
-                .commit();
-    }*/
 
 
     private void fetchEvents() {
