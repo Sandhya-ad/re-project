@@ -1,8 +1,10 @@
 package com.example.coffee2_app;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ListView;
 
 import com.example.coffee2_app.databinding.EntrantMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -12,10 +14,19 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EntrantHomeActivity extends AppCompatActivity {
@@ -24,6 +35,10 @@ public class EntrantHomeActivity extends AppCompatActivity {
     private EntrantMainBinding binding;
     private Entrant entrant;
     private String deviceID;
+    private List<Event> eventList = new ArrayList<>();
+    private EventsAdapter eventAdapter;
+    private RecyclerView eventRecyclerView;
+
 
     public Entrant getEntrant() {
         return entrant;
@@ -56,6 +71,7 @@ public class EntrantHomeActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
+
         // Confirm Entrant and Device ID are set
         if (entrant == null) {
             Log.e("FirestoreCheck", "Entrant is null.");
@@ -68,17 +84,58 @@ public class EntrantHomeActivity extends AppCompatActivity {
         } else {
             Log.d("FirestoreCheck", "Device ID: " + deviceID);
         }
+        // Initialize RecyclerView and Adapter
+        eventRecyclerView = findViewById(R.id.view_event_list);
+        eventRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        eventAdapter = new EventsAdapter(eventList, this, getSupportFragmentManager());
+        eventRecyclerView.setAdapter(eventAdapter);
+
+        // Fetch events from Firestore
+        fetchEvents(entrant.getUserId());
     }
 
-    public void updateEntrantInFirestore( String name, String email) {
-        if (deviceID != null && entrant != null) {
-            db.collection("users")
-                    .document(deviceID)  // Use Device ID as the document ID in "users"
-                    .set(entrant)
-                    .addOnSuccessListener(aVoid -> Log.d("Firestore", "Entrant updated successfully in users"))
-                    .addOnFailureListener(e -> Log.e("Firestore", "Error updating entrant in users", e));
-        } else {
-            Log.w("Firestore", "Device ID or Entrant data is null, cannot update Firestore.");
-        }
+    @SuppressLint("NotifyDataSetChanged")
+    public void fetchEvents(String userId) {
+        db.collection("users").document(userId).collection("events")
+                .get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<String> eventIds = new ArrayList<>();  // Store event IDs
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            eventIds.add(document.getId());  // Collect each event ID
+                        }
+
+                        for (String eventId : eventIds) {
+                            db.collection("events").document(eventId).get()
+                                    .addOnCompleteListener(eventTask -> {
+                                        if (eventTask.isSuccessful() && eventTask.getResult() != null) {
+                                            DocumentSnapshot eventDocument = eventTask.getResult();
+                                            String eventName = eventDocument.getString("name");
+                                            String organizerID = eventDocument.getString("userID");
+                                            boolean collectGeo = eventDocument.getBoolean("collectGeoStatus") != null && eventDocument.getBoolean("collectGeoStatus");
+                                            //String hashQrData = eventDocument.getString("hashQrData");
+                                            String hashQrData = "235b";
+                                            Timestamp eventDate = eventDocument.getTimestamp("eventDate");
+                                            Timestamp drawDate = eventDocument.getTimestamp("drawDate");
+                                            int maxEntries = eventDocument.contains("entriesLimit") ? eventDocument.getLong("entriesLimit").intValue() : -1;
+
+                                            Event event;
+                                            if (maxEntries != -1) {
+                                                event = new Event(eventName, organizerID, maxEntries, collectGeo, hashQrData, eventDate, drawDate);
+                                            } else {
+                                                event = new Event(eventName, organizerID, collectGeo, hashQrData, eventDate, drawDate);
+                                            }
+                                            eventList.add(event);
+                                            Log.d("FirestoreData", "Added Event: " + event.getName());
+                                            eventAdapter.notifyDataSetChanged(); // Refresh the adapter after each fetch
+                                        } else {
+                                            Log.e("FirestoreError", "Error getting event details: ", eventTask.getException());
+                                        }
+                                    });
+                        }
+                    } else {
+                        Log.e("FirestoreError", "Error getting user events: ", task.getException());
+                    }
+                });
     }
 }
