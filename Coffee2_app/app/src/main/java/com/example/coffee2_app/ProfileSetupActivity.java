@@ -1,6 +1,11 @@
 package com.example.coffee2_app;
 
+import static androidx.core.app.PendingIntentCompat.getActivity;
+
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -14,17 +19,22 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.io.IOException;
 
 /**
  * Activity to set up or update the profile of an Entrant.
  * Allows the user to input personal information and select a profile photo.
  */
 public class ProfileSetupActivity extends AppCompatActivity {
+    private static final int PICK_IMAGE_REQUEST = 1;
     private Entrant newEntrant;
     private FirebaseFirestore db;
+    private Bitmap bmp;
     private String deviceID;
     private EditText nameInput, emailInput, phoneInput;
     private CheckBox adminNotifCheckbox, organizerNotifCheckbox;
@@ -70,20 +80,6 @@ public class ProfileSetupActivity extends AppCompatActivity {
     }
 
     /**
-     * ActivityResultLauncher to handle the result of the photo picker.
-     * Sets the selected photo URI to the ImageView.
-     */
-    private final ActivityResultLauncher<Intent> photoPickerLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    profilePhotoUri = result.getData().getData();
-                    profilePhoto.setImageURI(profilePhotoUri);
-                }
-            }
-    );
-
-    /**
      * Launches an intent to allow the user to pick a profile photo from external storage.
      */
     private void selectPhoto() {
@@ -125,6 +121,16 @@ public class ProfileSetupActivity extends AppCompatActivity {
         }
         newEntrant.setAdminNotification(receiveAdminNotif);
         newEntrant.setOrganizerNotification(receiveOrganizerNotif);
+
+        if (bmp != null) {
+            Log.d("ProfilePhoto", "Saved");
+            newEntrant.setImage(bmp);
+        }
+
+        if (newEntrant.getImageID() == null) {
+            ImageGenerator gen = new ImageGenerator(newEntrant.getName());
+            newEntrant.setImage(gen.getImg());
+        }
         DatabaseHelper.updateEntrant(newEntrant);
 
         redirectToHome(newEntrant);
@@ -142,6 +148,28 @@ public class ProfileSetupActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    /**
+     * ActivityResultLauncher to handle the result of the photo picker.
+     * Sets the selected photo Bitmap to the ImageView.
+     */
+    private final ActivityResultLauncher<Intent> photoPickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Uri selectedImageUri = result.getData().getData();
+                    if (selectedImageUri != null) {
+                        try {
+                            bmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+                            bmp = Bitmap.createScaledBitmap(bmp, 500, 500, false); // Scale the image
+                            profilePhoto.setImageBitmap(bmp); // Set Bitmap to ImageView
+                        } catch (IOException e) {
+                            Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            }
+    );
 
     /**
      * Overrides the onBackPressed method to ensure the activity finishes when the back button is pressed,
