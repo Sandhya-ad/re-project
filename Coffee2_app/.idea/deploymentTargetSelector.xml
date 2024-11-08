@@ -16,10 +16,10 @@
       <SelectionState runConfigName="ProfileSetupActivityTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="MainActivityButtonTest">
+      <SelectionState runConfigName="AdminProfilesTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="EntrantProfileFragmentTest">
+      <SelectionState runConfigName="testDeleteProfile()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

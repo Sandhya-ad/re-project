@@ -42,11 +42,11 @@ public class BrowseProfilesFragment extends Fragment {
         binding = FragmentAdminProfilesBinding.inflate(inflater, container, false);
 
         // Setup RecyclerView with binding
-        binding.viewEventList.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.viewUserProfiles.setLayoutManager(new LinearLayoutManager(getContext()));
 
         usersList = new ArrayList<>();
         profilesAdapter = new BrowseProfilesAdapter(getContext(), usersList);
-        binding.viewEventList.setAdapter(profilesAdapter);
+        binding.viewUserProfiles.setAdapter(profilesAdapter);
         binding.backButton.setOnClickListener(v -> getActivity().onBackPressed());
 
         db = FirebaseFirestore.getInstance();
