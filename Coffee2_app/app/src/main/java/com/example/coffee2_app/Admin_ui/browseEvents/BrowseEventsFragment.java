@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
+import android.widget.ListAdapter;
 import android.widget.Toast;
 
 import com.example.coffee2_app.Event;
@@ -37,7 +38,7 @@ public class BrowseEventsFragment extends Fragment {
         GridView gridView = binding.eventGrid;
         eventsList = new ArrayList<>();
         eventsAdapter = new BrowseEventsAdapter(getContext(), eventsList);
-        gridView.setAdapter(eventsAdapter);
+        gridView.setAdapter((ListAdapter) eventsAdapter);
 
         // Load events from Firestore
         loadEvents();
