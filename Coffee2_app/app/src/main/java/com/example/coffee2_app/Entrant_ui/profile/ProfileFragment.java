@@ -5,14 +5,20 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 
@@ -28,9 +34,11 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.coffee2_app.DatabaseHelper;
 import com.example.coffee2_app.Entrant;
 import com.example.coffee2_app.EntrantHomeActivity;
+import com.example.coffee2_app.ImageGenerator;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentEntrantProfileBinding;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -39,7 +47,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.auth.FirebaseAuth;
 
-
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 /**
@@ -49,6 +59,8 @@ import com.google.firebase.auth.FirebaseAuth;
 public class ProfileFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
 
+    private Bitmap bmp;
+
 
     private Entrant entrant;
     private FragmentEntrantProfileBinding binding;
@@ -57,7 +69,6 @@ public class ProfileFragment extends Fragment {
 
 
     ActivityResultLauncher<Intent> imagePickLauncher;
-    Uri selectedImageUri;
     ImageView profilePic;
 
 
@@ -101,27 +112,6 @@ public class ProfileFragment extends Fragment {
      */
     public static DocumentReference currentUserDetails(){
         return FirebaseFirestore.getInstance().collection("users").document(currentUserId());
-    }
-
-
-    /**
-     * Initializes the fragment and sets up the image picker result launcher.
-     *
-     * @param savedInstanceState Bundle containing the fragment's saved state
-     */
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-        imagePickLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if(result.getResultCode() == Activity.RESULT_OK){
-                        Intent data = result.getData();
-                        if(data!=null && data.getData()!=null){
-                            selectedImageUri = data.getData();
-                            setProfilePic(getContext(), selectedImageUri, profilePic);
-                        }
-                    }
-                });
     }
 
 
@@ -171,16 +161,36 @@ public class ProfileFragment extends Fragment {
         binding.backButton.setOnClickListener(v -> getActivity().onBackPressed());
 
 
-        // Profile picture click listener
-        binding.profilePicture.setOnClickListener(view -> {
-//            if (isEditing) {
-//                ImagePicker.with(this).cropSquare().compress(512).maxResultSize(512, 512)
-//                        .createIntent(intent -> {
-//                            imagePickLauncher.launch(intent);
-//                            return null;
-//                        });
-//            }
-            if (isEditing) openImagePicker();
+        binding.profileImage.setOnClickListener(view -> {
+            if (isEditing) {
+                PopupMenu popupMenu = new PopupMenu(this.getContext(), view);
+                popupMenu.getMenuInflater().inflate(R.menu.image_menu, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (item.getItemId() == R.id.choose_image) {
+                            openImagePicker();
+                            return true;
+                        }
+                        else if (item.getItemId() == R.id.remove_image) {
+                            ImageGenerator gen;
+                            if (entrant.getName() != null) {
+                                gen = new ImageGenerator(entrant.getName());
+                            }
+                            else {
+                                gen = new ImageGenerator("User");
+                            }
+                            bmp = gen.getImg();
+                            binding.profileImage.setImageBitmap(bmp);
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                });
+                popupMenu.show();
+            }
         });
 
 
@@ -199,6 +209,65 @@ public class ProfileFragment extends Fragment {
         binding.entrantName.setText(entrant.getName());
         binding.entrantPhone.setText(entrant.getPhone());
         binding.entrantEmail.setText(entrant.getEmail());
+        if (entrant.getImageID() != null) {
+            // If document doesn't exist, fallback to default photo
+            DocumentReference doc = db.collection("images").document(entrant.getImageID());
+            doc.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+
+                    if (document.exists()) {
+                        Log.d("Firestore", "Document exists, loading picture.");
+
+                        // If doc exists
+                        String imageData = document.getString("imageData");
+                        InputStream inputStream = new ByteArrayInputStream(Base64.decode(imageData, Base64.DEFAULT));
+                        binding.profileImage.setImageBitmap(BitmapFactory.decodeStream(inputStream));
+                    } else {
+                        // If doc doesn't exist, save default picture
+                        Log.d("Firestore", "Document does not exist.");
+                        ImageGenerator gen;
+                        if (entrant.getName() != null) {
+                            gen = new ImageGenerator(entrant.getName());
+                            entrant.setImage(gen.getImg());
+                        } else {
+                            gen = new ImageGenerator("User");
+                        }
+                        binding.profileImage.setImageBitmap(gen.getImg());
+                    }
+                } else {
+                    Log.e("FirestoreError", "Image Failed: ", task.getException());
+                }
+            });
+        }
+        else {
+            ImageGenerator gen;
+            if (entrant.getName() != null) {
+                gen = new ImageGenerator(entrant.getName());
+                entrant.setImage(gen.getImg());
+            }
+            else {
+                gen = new ImageGenerator("User");
+            }
+            binding.profileImage.setImageBitmap(gen.getImg());
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == getActivity().RESULT_OK && data != null) {
+            Uri selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+                try {
+                    bmp = MediaStore.Images.Media.getBitmap(this.getContext().getContentResolver(), selectedImageUri);
+                    bmp = Bitmap.createScaledBitmap(bmp, 500, 500, false);
+                    binding.profileImage.setImageBitmap(bmp);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 
 
@@ -283,55 +352,6 @@ public class ProfileFragment extends Fragment {
     }
 
 
-    /**
-     * Updates the Entrant's profile data in Firestore and provides feedback on the operation's success or failure.
-     */
-    void updateToFirestore(){
-        if (entrant != null) {
-            currentUserDetails().set(entrant)
-                    .addOnCompleteListener(task -> {
-                        if(task.isSuccessful()){
-                            Toast.makeText(getContext(), "Updated successfully", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getContext(), "Update failed", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        } else {
-            Toast.makeText(getContext(), "Entrant data is missing", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
-    /**
-     * Loads the Entrant's data from Firebase Storage and Firestore, including the profile picture.
-     */
-    void getUserData() {
-        // Load profile picture from Firebase Storage
-        getCurrentProfilePicStorageRef().getDownloadUrl()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Uri uri = task.getResult();
-                        setProfilePic(getContext(), uri, binding.profilePicture); // updated to use binding.profilePicture
-                    } else {
-                        Toast.makeText(getContext(), "Failed to load profile picture.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-
-        // Load user data from Firestore
-        currentUserDetails().get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                entrant = task.getResult().toObject(Entrant.class); // Retrieve Entrant data
-                if (entrant != null) {
-                    binding.entrantName.setText(entrant.getName()); // Use Entrant's data to populate fields
-                    binding.entrantPhone.setText(entrant.getPhone());
-                    binding.entrantEmail.setText(entrant.getEmail());
-                }
-            } else {
-                Toast.makeText(getContext(), "Failed to load user data.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
 
     /**
@@ -369,17 +389,17 @@ public class ProfileFragment extends Fragment {
         entrant.setName(name);
         entrant.setEmail(email);
         entrant.setPhone(phone);
-        DatabaseHelper.updateEntrant(entrant);
 
-
-        if(selectedImageUri != null) {
-            getCurrentProfilePicStorageRef().putFile(selectedImageUri)
-                    .addOnCompleteListener(task -> {
-                        updateToFirestore();
-                    });
-        }else{
-            updateToFirestore();
+        if (bmp != null) {
+            Log.d("ProfilePhoto", "Saved");
+            entrant.setImage(bmp);
         }
+
+        if (entrant.getImageID() == null) {
+            ImageGenerator gen = new ImageGenerator(entrant.getName());
+            entrant.setImage(gen.getImg());
+        }
+        DatabaseHelper.updateEntrant(entrant);
     }
 
 
@@ -395,6 +415,48 @@ public class ProfileFragment extends Fragment {
         binding.entrantName.setText(name);
         binding.entrantEmail.setText(email);
         binding.entrantPhone.setText(phone);
+        if (entrant.getImageID() != null) {
+            // If document doesn't exist, fallback to default photo
+            DocumentReference doc = db.collection("images").document(entrant.getImageID());
+            doc.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+
+                    if (document.exists()) {
+                        Log.d("Firestore", "Document exists, loading picture.");
+
+                        // If doc exists
+                        String imageData = document.getString("imageData");
+                        InputStream inputStream = new ByteArrayInputStream(Base64.decode(imageData, Base64.DEFAULT));
+                        binding.profileImage.setImageBitmap(BitmapFactory.decodeStream(inputStream));
+                    } else {
+                        // If doc doesn't exist, save default picture
+                        Log.d("Firestore", "Document does not exist.");
+                        ImageGenerator gen;
+                        if (entrant.getName() != null) {
+                            gen = new ImageGenerator(entrant.getName());
+                            entrant.setImage(gen.getImg());
+                        } else {
+                            gen = new ImageGenerator("User");
+                        }
+                        binding.profileImage.setImageBitmap(gen.getImg());
+                    }
+                } else {
+                    Log.e("FirestoreError", "Image Failed: ", task.getException());
+                }
+            });
+        }
+        else {
+            ImageGenerator gen;
+            if (entrant.getName() != null) {
+                gen = new ImageGenerator(entrant.getName());
+                entrant.setImage(gen.getImg());
+            }
+            else {
+                gen = new ImageGenerator("User");
+            }
+            binding.profileImage.setImageBitmap(gen.getImg());
+        }
     }
 
 
