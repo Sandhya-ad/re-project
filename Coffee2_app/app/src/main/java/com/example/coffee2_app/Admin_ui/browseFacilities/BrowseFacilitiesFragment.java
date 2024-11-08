@@ -19,6 +19,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class BrowseFacilitiesFragment extends Fragment {
 
@@ -46,7 +47,11 @@ public class BrowseFacilitiesFragment extends Fragment {
         viewModel.getFacilities().observe(getViewLifecycleOwner(), facilities -> {
             if (facilities != null) {
                 facilityList.clear();
-                facilityList.addAll(facilities);
+                for (Map<String, Object> facilityData : facilities) {
+                    // Assuming Facility has a constructor that takes a Map
+                    Facility facility = new Facility(facilityData);
+                    facilityList.add(facility);
+                }
                 facilitiesAdapter.notifyDataSetChanged();
             }
         });

@@ -1,5 +1,7 @@
 package com.example.coffee2_app;
 
+import java.util.Map;
+
 public class Facility {
     private String id;
     private String name;
@@ -7,6 +9,12 @@ public class Facility {
     private String imageUrl;
 
     // Constructor
+    public Facility(Map<String, Object> data) {
+        this.name = (String) data.get("name");
+        this.id = (String) data.get("id");
+        this.imageUrl = (String) data.get("imageUrl");
+        // Initialize other fields from the map
+    }
     public Facility(String id, String name, String description) {
         this.id = id;
         this.name = name;
