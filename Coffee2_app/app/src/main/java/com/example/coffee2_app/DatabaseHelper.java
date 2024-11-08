@@ -92,4 +92,7 @@ public class DatabaseHelper {
                 .addOnSuccessListener(aVoid -> System.out.println("User deleted from Firestore successfully."))
                 .addOnFailureListener(e -> System.err.println("Error deleting User from Firestore: " + e.getMessage()));
     }
+
+    public static void addEvent(User testUser) {
+    }
 }
