@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.coffee2_app.databinding.EntrantMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -79,6 +80,8 @@ public class EntrantHomeActivity extends AppCompatActivity {
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+        Toast.makeText(this, "Click on chosen events to accept invitation", Toast.LENGTH_LONG).show();
 
 
         // Confirm Entrant and Device ID are set
