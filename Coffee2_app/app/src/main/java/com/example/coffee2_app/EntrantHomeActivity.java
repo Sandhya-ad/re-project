@@ -40,10 +40,18 @@ public class EntrantHomeActivity extends AppCompatActivity {
     private RecyclerView eventRecyclerView;
 
 
+    /**
+     * Getter method for entrant object, for fragments
+     * @return Entrant
+     */
     public Entrant getEntrant() {
         return entrant;
     }
 
+    /**
+     * Getter method for DeviceID
+     * @return DeviceID
+     */
     public String getDeviceID() {
         return deviceID;
     }

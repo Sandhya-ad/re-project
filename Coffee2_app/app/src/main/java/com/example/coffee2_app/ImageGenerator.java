@@ -18,6 +18,10 @@ public class ImageGenerator {
     private String name;
     private final Random rand = new Random();
 
+    /**
+     * Constructor for ImageGenerator.
+     * @param name
+     */
     public ImageGenerator(String name) {
         this.name = name;
         this.genImg();

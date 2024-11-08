@@ -29,6 +29,10 @@ public class OrganizerHomeActivity extends AppCompatActivity {
      */
     public Organizer getOrganizer() { return organizer; }
 
+    /**
+     * Returns DeviceID for other Fragments
+     * @return DeviceID
+     */
     public String getDeviceID() { return deviceID; }
 
     @Override

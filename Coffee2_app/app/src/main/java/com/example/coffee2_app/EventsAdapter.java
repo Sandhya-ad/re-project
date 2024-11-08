@@ -28,6 +28,11 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
     private FragmentManager currentFragment;
     private Context context;
 
+    /**
+     * Constructor for EventsAdapter
+     * @param events
+     * @param currentFragment
+     */
     public EventsAdapter(List<Event> events, Context context, FragmentManager currentFragment) {
         this.events = events;
         this.context = context;
@@ -81,7 +86,10 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
         });
     }
 
-
+    /**
+     * Returns event count
+     * @return Event count
+     */
     @Override
     public int getItemCount() {
         return events.size();
