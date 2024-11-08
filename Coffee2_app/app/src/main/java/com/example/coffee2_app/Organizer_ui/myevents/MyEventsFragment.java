@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.coffee2_app.Event;
 import com.example.coffee2_app.EventsAdapter;
+import com.example.coffee2_app.Organizer;
+import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentMyEventsBinding;
 import com.google.firebase.Timestamp;
@@ -30,6 +32,8 @@ public class MyEventsFragment extends Fragment {
 
     private FragmentMyEventsBinding binding;
     private FirebaseFirestore db;
+    Organizer organizer;
+    public String deviceID;
     private EventsAdapter eventsAdapter; // Create an adapter for your RecyclerView
     private List<Event> eventList; // Create a list to hold events
 
@@ -111,7 +115,6 @@ public class MyEventsFragment extends Fragment {
                             String hashQRData = "";
                             Timestamp eventDate = document.getTimestamp("eventDate");
                             Timestamp drawDate = document.getTimestamp("drawDate");
-
                             if (userID.equals(organizer.getUserID())){
                                 Event event = new Event(name, userID, maxEntries, collectGeo, hashQRData, eventDate, drawDate);
                                 eventList.add(event);

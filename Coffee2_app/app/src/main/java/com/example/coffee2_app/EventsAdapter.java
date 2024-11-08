@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.coffee2_app.Organizer_ui.myevents.EventDetailsFragment;
 //import com.example.coffee2_app.Organizer_ui.myevents.MyEventsFragment;
 
+import java.text.BreakIterator;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -149,6 +150,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
      * ViewHolder class for holding references to the views for each event item
      */
     static class EventViewHolder extends RecyclerView.ViewHolder {
+        public BreakIterator entriesTextView;
         TextView nameTextView;
         TextView addressTextView;
         TextView eventDateTextView;
