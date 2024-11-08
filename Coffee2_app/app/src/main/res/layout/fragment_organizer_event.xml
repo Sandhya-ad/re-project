@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/white">
 
     <!-- Back/Change Roles Button and Highlighted Title in a Horizontal Layout -->
     <androidx.cardview.widget.CardView
@@ -13,9 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        android:padding="8dp"
-        android:background="@color/light_grey">
+        app:cardElevation="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -104,7 +103,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textAlignment="center"
-            android:text="@string/entires_d"
+            android:text="@string/entries_d"
             android:textStyle="bold" />
 
         <Button
@@ -113,8 +112,7 @@
             android:layout_height="wrap_content"
             android:text="@string/view_entries"
             android:layout_marginTop="32dp"
-            android:backgroundTint="@color/main_blue"
-            />
+            android:backgroundTint="@color/main_blue" />
 
         <Button
             android:id="@+id/event_share_qr"
@@ -122,8 +120,7 @@
             android:layout_height="wrap_content"
             android:text="@string/share_qr_code"
             android:layout_marginTop="2dp"
-            android:backgroundTint="@color/main_blue"
-            />
+            android:backgroundTint="@color/main_blue" />
 
         <Button
             android:id="@+id/event_edit_button"
@@ -131,8 +128,7 @@
             android:layout_height="wrap_content"
             android:text="@string/edit_event"
             android:layout_marginTop="2dp"
-            android:backgroundTint="@color/light_grey"
-            />
+            android:backgroundTint="@color/light_grey" />
 
         <Button
             android:id="@+id/event_end_draw"
@@ -140,10 +136,6 @@
             android:layout_height="wrap_content"
             android:text="@string/end_draw"
             android:layout_marginTop="2dp"
-            android:backgroundTint="@color/main_red"
-            />
-
-
+            android:backgroundTint="@color/main_red" />
     </LinearLayout>
-
 </LinearLayout>
