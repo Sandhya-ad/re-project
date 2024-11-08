@@ -38,6 +38,7 @@ public class EntrantHomeActivity extends AppCompatActivity {
     private List<Event> eventList = new ArrayList<>();
     private EntrantEventAdapter eventAdapter;
     private RecyclerView eventRecyclerView;
+    private List<String> statusList = new ArrayList<>();
 
 
     /**
@@ -95,7 +96,7 @@ public class EntrantHomeActivity extends AppCompatActivity {
         // Initialize RecyclerView and Adapter
         eventRecyclerView = findViewById(R.id.view_event_list);
         eventRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        eventAdapter = new EntrantEventAdapter(eventList, this, getSupportFragmentManager());
+        eventAdapter = new EntrantEventAdapter(eventList, this, getSupportFragmentManager(), statusList);
         eventRecyclerView.setAdapter(eventAdapter);
 
         // Fetch events from Firestore
@@ -111,6 +112,7 @@ public class EntrantHomeActivity extends AppCompatActivity {
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             eventIds.add(document.getId());  // Collect each event ID
+                            statusList.add(document.getString("status"));
                         }
 
                         for (String eventId : eventIds) {

@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.coffee2_app.Organizer_ui.myevents.EventDetailsFragment;
 
+import org.w3c.dom.Text;
+
 import java.util.Date;
 import java.util.List;
 
@@ -26,11 +28,13 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
     private List<Event> events;
     private FragmentManager currentFragment;
     private Context context;
+    private List<String> status;
 
-    public EntrantEventAdapter(List<Event> events, Context context, FragmentManager currentFragment) {
+    public EntrantEventAdapter(List<Event> events, Context context, FragmentManager currentFragment,List<String> status) {
         this.events = events;
         this.context = context;
         this.currentFragment = currentFragment;
+        this.status = status;
     }
 
     @NonNull
@@ -43,9 +47,15 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = events.get(position);
+        String status_str = status.get(position);
         holder.nameTextView.setText(event.getName());
         //holder.entriesTextView.setText(event.getMaxEntries() > 0 ? String.valueOf(event.getMaxEntries()) : "Unlimited");
 
+        if (status_str != null) {
+            holder.eventStatusTextView.setText(status_str);
+        } else {
+            holder.eventStatusTextView.setText("N/A");
+        }
         // Format and set the event date
         if (event.getEventDate() != null) {
             Date eventDate = event.getEventDate().toDate();
@@ -87,6 +97,7 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
     static class EventViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
         TextView eventDateTextView;
+        TextView eventStatusTextView;
         TextView drawDateTextView;
         TextView entriesTextView;
 
@@ -94,6 +105,7 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
             super(itemView);
             nameTextView = itemView.findViewById(R.id.event_title);
             eventDateTextView = itemView.findViewById(R.id.event_date);
+            eventStatusTextView = itemView.findViewById(R.id.event_status);
             //drawDateTextView = itemView.findViewById(R.id.event_draw_date);
             //entriesTextView = itemView.findViewById(R.id.event_entries);
         }
