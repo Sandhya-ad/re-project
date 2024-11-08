@@ -53,13 +53,15 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-auth")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    implementation(libs.espresso.intents)
-    implementation(libs.firebase.storage)
     testImplementation(libs.junit)
     testImplementation(libs.androidx.junit)
     testImplementation(libs.espresso.core)
@@ -73,4 +75,5 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:3.12.4")
     testImplementation("net.bytebuddy:byte-buddy:1.12.20")
 
+    implementation("com.github.dhaval2404:imagepicker:2.1")
 }
