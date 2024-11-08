@@ -1,5 +1,6 @@
 package com.example.coffee2_app;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,9 @@ import com.example.coffee2_app.databinding.OrganizerMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Activity for organizer home screen. Sets up and manages the navigation bar
+ */
 public class OrganizerHomeActivity extends AppCompatActivity {
 
     private OrganizerMainBinding binding;
@@ -23,13 +27,22 @@ public class OrganizerHomeActivity extends AppCompatActivity {
     private String deviceID;
 
     /**
-     * Returns Organizer for other Fragments
-     * @return Organizer
+     * Returns organizer for other Fragments
+     * @return organizer
      */
     public Organizer getOrganizer() { return organizer; }
 
+    /**
+     * Returns deviceID for other Fragments
+     * @return deviceID
+     */
     public String getDeviceID() { return deviceID; }
 
+    /**
+     * Initializes the view binding, retrieves the Organizer and device ID, and sets up navigation
+     *
+     * @param savedInstanceState Contains data it most recently supplied
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,16 +70,13 @@ public class OrganizerHomeActivity extends AppCompatActivity {
             Log.d("FirestoreCheck", "Device ID: " + deviceID);
         }
 
-//        Bundle args = new Bundle();
-//        args.putSerializable("organizer", organizer);
-//        args.putString("deviceID", deviceID);
-//        MyEventsFragment myEventsFragment = new MyEventsFragment();
-//        myEventsFragment.setArguments(args);
-
         // Proceed to set up navigation only after organizer and deviceID are confirmed
         setupNavigation();
     }
 
+    /**
+     * Sets up the bottom navigation and navigation controller for the app
+     */
     private void setupNavigation() {
         BottomNavigationView navView = findViewById(R.id.nav_view);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(

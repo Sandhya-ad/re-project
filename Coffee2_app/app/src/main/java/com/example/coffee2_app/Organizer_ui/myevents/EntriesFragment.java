@@ -9,22 +9,31 @@ import android.widget.ImageButton;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.coffee2_app.EntriesAdapter;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentEventEntrantsBinding;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Fragment that displays a list of entrants for an event. Uses a RecyclerView to display entrant names
+ */
 public class EntriesFragment extends Fragment {
 
     private FragmentEventEntrantsBinding binding;
     private List<String> nameList;
     private EntriesAdapter namesAdapter;
 
+    /**
+     * Inflates the layout, initializes an array and click listeners.
+     *
+     * @param inflater  LayoutInflater to inflate views in the fragment
+     * @param container          Parent view to contain the fragment's UI
+     * @param savedInstanceState Bundle containing the fragment's saved state
+     * @return The root view of the fragment
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -49,6 +58,9 @@ public class EntriesFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Clears the binding reference when the view is destroyed to prevent memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

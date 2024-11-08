@@ -20,6 +20,9 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Fragment displaying details for an event. Allows the user to generate/share a QR code, and end the draw.
+ */
 public class EventDetailsFragment extends Fragment {
 
     private FragmentOrganizerEventBinding binding;
@@ -33,6 +36,14 @@ public class EventDetailsFragment extends Fragment {
     private int maxEntries;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    /**
+     * Inflates the layout, retrieves event details, and sets up click listeners
+     *
+     * @param inflater  LayoutInflater to inflate views in the fragment
+     * @param container          Parent view to contain the fragment's UI
+     * @param savedInstanceState Bundle containing the fragment's saved state
+     * @return The root view of the fragment
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -84,32 +95,9 @@ public class EventDetailsFragment extends Fragment {
         return root;
     }
 
-    private void fetchEventDetails(String eventId) {
-        db.collection("events").document(eventId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            String name = document.getString("name");
-                            String eventDate = document.getString("eventDate");
-                            String drawDate = document.getString("drawDate");
-                            int maxEntries = document.getLong("entriesLimit").intValue();
-
-                            binding.eventTitle.setText(name);
-                            binding.eventOrganizerName.setText("Sample Organizer");
-                            binding.eventTimeLeft.setText(eventDate);
-                            binding.eventLocation.setText("Sample Location");
-                            binding.eventEntries.setText(String.valueOf(maxEntries));
-                        } else {
-                            Toast.makeText(getContext(), "Event not found", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(getContext(), "Error fetching event details: " + task.getException(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
+    /**
+     * Goes to EntriesFragment to display a list of entrants
+     */
     private void showEntriesFragment() {
         EntriesFragment entriesFragment = new EntriesFragment();
 
@@ -121,12 +109,21 @@ public class EventDetailsFragment extends Fragment {
         transaction.commit();
     }
 
+    /**
+     * Displays a QR code creation/sharing fragment.
+     */
     private void showQRCreateFragment() {
     }
 
+    /**
+     * End the event draw.
+     */
     private void endDraw() {
     }
 
+    /**
+     * Clears the binding reference when the view is destroyed to prevent memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

@@ -11,7 +11,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.coffee2_app.Event;
 import com.example.coffee2_app.EventsAdapter;
@@ -26,6 +25,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Displays a list of events created by the current organizer. Gets events from Firestore, displays navigation options.
+ */
 public class MyEventsFragment extends Fragment {
 
     private Organizer organizer;
@@ -35,6 +37,14 @@ public class MyEventsFragment extends Fragment {
     private List<Event> eventList; // Create a list to hold events
     private String deviceID;
 
+    /**
+     * Inflates the layout, initializes Firestore and click listeners.
+     *
+     * @param inflater  LayoutInflater to inflate views in the fragment
+     * @param container          Parent view to contain the fragment's UI
+     * @param savedInstanceState Bundle containing the fragment's saved state
+     * @return The root view of the fragment
+     */
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentMyEventsBinding.inflate(inflater, container, false); // Initialize binding
@@ -62,6 +72,9 @@ public class MyEventsFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Retrieves organizer and deviceID from the parent activity and logs status.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -87,7 +100,6 @@ public class MyEventsFragment extends Fragment {
             Log.e("MEF_Dev", "DeviceID is null");
         }
     }
-
 
     private void fetchEvents() {
         db.collection("events") // Use your collection name
@@ -115,6 +127,9 @@ public class MyEventsFragment extends Fragment {
                 });
     }
 
+    /**
+     * Clears the binding reference when the view is destroyed to prevent memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

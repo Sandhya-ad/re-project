@@ -165,8 +165,6 @@ public class Event implements Serializable {
         return this.QRCode;
     }
 
-
-
     // Getter and Setter
     public String getImageUrl() {
         return imageUrl;

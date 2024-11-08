@@ -27,6 +27,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Fragment that allows an organizer to create a new event.
+ * Has UI for entering event details. The event details are saved to Firebase Firestore upon submission.
+ */
 public class AddEventFragment extends Fragment {
 
     private Organizer organizer;
@@ -34,6 +38,14 @@ public class AddEventFragment extends Fragment {
     private FragmentAddEventBinding binding;
     private FirebaseFirestore db;
 
+    /**
+     * Inflates the layout, initializes Firestore and click listeners.
+     *
+     * @param inflater  LayoutInflater to inflate views in the fragment
+     * @param container          Parent view to contain the fragment's UI
+     * @param savedInstanceState Bundle containing the fragment's saved state
+     * @return The root view of the fragment
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -54,6 +66,9 @@ public class AddEventFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Retrieves organizer and deviceID from the parent activity and logs status.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -80,6 +95,11 @@ public class AddEventFragment extends Fragment {
         }
     }
 
+    /**
+     * Date and time picker dialog, displays in the TextView
+     *
+     * @param dateView The TextView where date and time will be displayed.
+     */
     private void openDateTimePicker(TextView dateView) {
         // Get the current date and time
         Calendar calendar = Calendar.getInstance();
@@ -107,7 +127,10 @@ public class AddEventFragment extends Fragment {
         datePickerDialog.show();
     }
 
-
+    /**
+     * Creates a new event with details. Validates input fields, writes the event data to Firestore.
+     * Displays a Toast message indicating success or failure.
+     */
     private void createEvent() {
         String name = binding.eventName.getText().toString().trim();
         String eventDateString = binding.eventDate.getText().toString().trim();
@@ -207,6 +230,9 @@ public class AddEventFragment extends Fragment {
                 });
     }
 
+    /**
+     * Clears the binding reference when the view is destroyed to prevent memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

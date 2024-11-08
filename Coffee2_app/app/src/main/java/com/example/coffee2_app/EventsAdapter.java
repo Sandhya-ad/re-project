@@ -3,7 +3,6 @@ package com.example.coffee2_app;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,16 +21,33 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * RecyclerView Adapter for displaying a list of events
+ * Each entry includes event name, date and address
+ */
 public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewHolder> {
 
     private List<Event> events;
     private Fragment currentFragment;
 
+    /**
+     * Constructor for initializing the adapter
+     *
+     * @param events           List of events
+     * @param currentFragment  Fragment where this adapter is used
+     */
     public EventsAdapter(List<Event> events, Fragment currentFragment) {
         this.events = events;
         this.currentFragment = currentFragment;
     }
 
+    /**
+     * Inflates layout for each item and returns ViewHolder
+     *
+     * @param parent   The parent ViewGroup
+     * @param viewType The view type of the new View
+     * @return A new instance of EventViewHolder containing item layout
+     */
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -39,6 +55,13 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
         return new EventViewHolder(view);
     }
 
+
+    /**
+     * Binds event data to the ViewHolder for each item in the list
+     *
+     * @param holder   ViewHolder for binding
+     * @param position Position of item in the adapter
+     */
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = events.get(position);
@@ -81,11 +104,19 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
         });
     }
 
+    /**
+     * Returns total number of items in the list
+     *
+     * @return The size of the name list
+     */
     @Override
     public int getItemCount() {
         return events.size();
     }
 
+    /**
+     * ViewHolder class for holding references to the views for each event item
+     */
     static class EventViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
         TextView addressTextView;
