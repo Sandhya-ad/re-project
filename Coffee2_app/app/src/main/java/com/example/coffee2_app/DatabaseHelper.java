@@ -60,7 +60,7 @@ public class DatabaseHelper {
                 .update("organizer", organizer);
     }
 
-     * Adds a new User object to Firestore.
+     /* Adds a new User object to Firestore.
      *
      * @param user The User object to add to Firestore.
      */
