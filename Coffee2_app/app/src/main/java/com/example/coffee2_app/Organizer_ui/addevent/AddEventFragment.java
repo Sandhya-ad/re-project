@@ -1,6 +1,7 @@
 package com.example.coffee2_app.Organizer_ui.addevent;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,13 +45,11 @@ public class AddEventFragment extends Fragment {
         binding.backButton.setOnClickListener(v -> getActivity().onBackPressed());
 
         // Save button click listener to save profile data
-        binding.saveButton.setOnClickListener(view -> {
-            createEvent();
-        });
+        binding.saveButton.setOnClickListener(view -> {createEvent();});
 
         // Set up the button to open the DatePickerDialog
-        binding.dateButton.setOnClickListener(v -> openDatePicker(binding.eventDate));
-        binding.dateDrawButton.setOnClickListener(v -> openDatePicker(binding.eventDrawDate));
+        binding.dateButton.setOnClickListener(v -> openDateTimePicker(binding.eventDate));
+        binding.dateDrawButton.setOnClickListener(v -> openDateTimePicker(binding.eventDrawDate));
 
         return root;
     }
@@ -81,30 +80,44 @@ public class AddEventFragment extends Fragment {
         }
     }
 
-    private void openDatePicker(TextView dateView) {
+    private void openDateTimePicker(TextView dateView) {
+        // Get the current date and time
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
 
+        // Show DatePickerDialog first
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
                 R.style.CustomDatePickerDialog,
                 (view, selectedYear, selectedMonth, selectedDay) -> {
-                    String selectedDate = (selectedMonth + 1) + "/" + selectedDay + "/" + selectedYear;
-                    dateView.setText(selectedDate);
+                    // When date is selected, show TimePickerDialog
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
+                            (timeView, selectedHour, selectedMinute) -> {
+                                // Format the selected date and time
+                                String selectedDateTime = (selectedMonth + 1) + "/" + selectedDay + "/" + selectedYear +
+                                        " " + String.format("%02d:%02d", selectedHour, selectedMinute);
+                                // Set the formatted date and time to the TextView
+                                dateView.setText(selectedDateTime);
+                            }, hour, minute, true);
+                    timePickerDialog.show();
                 }, year, month, day);
         datePickerDialog.show();
     }
+
 
     private void createEvent() {
         String name = binding.eventName.getText().toString().trim();
         String eventDateString = binding.eventDate.getText().toString().trim();
         String drawDateString = binding.eventDrawDate.getText().toString().trim();
-        String entriesLimit = binding.eventEntries.getText().toString().trim();
+        String entriesLimitString = binding.eventEntries.getText().toString().trim();
+        int entriesLimit;
         boolean geolocation = binding.eventGeolocation.isChecked();
 
         // Valid Entry Logic
-        if (name.isEmpty() || eventDateString.isEmpty() || drawDateString.isEmpty() || entriesLimit.isEmpty()) {
+        if (name.isEmpty() || eventDateString.isEmpty() || drawDateString.isEmpty()) {
             Toast.makeText(getContext(), "Please fill out all fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -113,11 +126,8 @@ public class AddEventFragment extends Fragment {
             return;
         }
 
-        int eventYear, drawYear;
-        eventYear = Integer.parseInt(eventDateString.split("/")[2]);
-        drawYear = Integer.parseInt(drawDateString.split("/")[2]);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+        // Update the SimpleDateFormat to parse date and time
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
         sdf.setLenient(false);
 
         Date eventDate, drawDate;
@@ -125,12 +135,15 @@ public class AddEventFragment extends Fragment {
             eventDate = sdf.parse(eventDateString);
             drawDate = sdf.parse(drawDateString);
         } catch (ParseException e) {
-            Toast.makeText(getContext(), "Please enter a valid date in MM/dd/yyyy format.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Please enter a valid date in MM/dd/yyyy HH:mm format.", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Convert Date objects to Timestamps
         Timestamp eventTimestamp = new Timestamp(eventDate);
         Timestamp drawTimestamp = new Timestamp(drawDate);
+
+        // Initialize Calendars with the Date objects
         Calendar eventCalendar = Calendar.getInstance();
         Calendar drawCalendar = Calendar.getInstance();
         eventCalendar.setTime(eventDate);
@@ -139,14 +152,19 @@ public class AddEventFragment extends Fragment {
         Calendar currentDate = Calendar.getInstance();
 
         try {
+            // Check if either date is in the past
             if (eventCalendar.before(currentDate) || drawCalendar.before(currentDate)) {
-                Toast.makeText(getContext(), "Please enter a future date", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Please enter a future date and time", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (eventCalendar.before(drawCalendar)){
-                Toast.makeText(getContext(), "Please enter an event date AFTER draw date", Toast.LENGTH_SHORT).show();
+            // Ensure event date is after draw date
+            if (eventCalendar.before(drawCalendar)) {
+                Toast.makeText(getContext(), "Please enter an event date AFTER the draw date", Toast.LENGTH_SHORT).show();
                 return;
             }
+            // Validate the year range for both dates
+            int eventYear = eventCalendar.get(Calendar.YEAR);
+            int drawYear = drawCalendar.get(Calendar.YEAR);
             if (eventYear > 3000 || drawYear > 3000) {
                 Toast.makeText(getContext(), "Please enter a valid year (2024-3000)", Toast.LENGTH_SHORT).show();
                 return;
@@ -156,30 +174,24 @@ public class AddEventFragment extends Fragment {
             return;
         }
 
-//        int entrants;
-//        try {
-//            entrants = Integer.parseInt(entries);
-//            if (entrants < 0 || entrants > 1000) {
-//                Toast.makeText(getContext(), "Please enter a valid number of entrants (0-1000)", Toast.LENGTH_LONG).show();
-//                return;
-//            }
-//        } catch (NumberFormatException e) {
-//            Toast.makeText(getContext(), "Please enter a valid number", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
+        if (entriesLimitString.isEmpty()) {
+            entriesLimit = -1;
+        } else {
+            entriesLimit = Integer.parseInt(entriesLimitString);
+        }
 
         //Just to check before the db is implemented
-        String message = "Event Created - Name: " + name + ", Event Date: " + eventDateString + ", Draw Date: " + drawDateString + ", Entries: " + entriesLimit + ", Geolocation: " + (geolocation ? "On" : "Off");
+        String message = "Event Created - Name: " + name + ", Event Date: " + eventDateString + ", Draw Date: " + drawDateString + ", Geolocation: " + (geolocation ? "On" : "Off");
 
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
 
         // Create a map for the event data
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
-        eventData.put("userID", organizer.getUserID());
+        eventData.put("facilityID", organizer.getUserID());
         eventData.put("eventDate", eventTimestamp);
         eventData.put("drawDate", drawTimestamp);
-        eventData.put("entriesLimit", Integer.parseInt(entriesLimit));
+        eventData.put("entriesLimit", entriesLimit);
         eventData.put("collectGeoStatus", geolocation);
 
         // Write to Firestore
