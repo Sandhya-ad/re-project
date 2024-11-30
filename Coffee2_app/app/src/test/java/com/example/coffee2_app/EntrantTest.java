@@ -74,37 +74,4 @@ class EntrantTest {
         assertFalse(entrant.getOrganizerNotification(), "Organizer notification should be false after setting it to false");
     }
 
-    /**
-     * Test the addSignedUpEvent method to ensure an event can be added to the Entrant's signed-up events list.
-     */
-    @Test
-    void testAddSignedUpEvent() {
-        Entrant entrant = mockEntrant();
-        Event event = new Event("Sample Event"); // Assuming Event has a constructor taking a name
-        entrant.addSignedUpEvent(event);
-        assertTrue(entrant.getSignedUpEvents().contains(event), "Signed-up events list should contain the added event");
-    }
-
-    /**
-     * Test the addWaitListedEvent method to ensure an event can be added to the Entrant's waitlisted events list.
-     */
-    @Test
-    void testAddWaitListedEvent() {
-        Entrant entrant = mockEntrant();
-        Event event = new Event("Sample Waitlisted Event");
-        entrant.addWaitListedEvent(event);
-        assertTrue(entrant.getWaitListedEvents().contains(event), "Waitlisted events list should contain the added event");
-    }
-
-    /**
-     * Test the removeWaitListedEvent method to ensure an event can be removed from the Entrant's waitlisted events list.
-     */
-    @Test
-    void testRemoveWaitListedEvent() {
-        Entrant entrant = mockEntrant();
-        Event event = new Event("Sample Waitlisted Event");
-        entrant.addWaitListedEvent(event);
-        entrant.removeWaitListedEvent(event);
-        assertFalse(entrant.getWaitListedEvents().contains(event), "Waitlisted events list should not contain the removed event");
-    }
 }

@@ -119,51 +119,51 @@ public class EntrantHomeActivity extends AppCompatActivity {
      * the list of events to be displayed in the RecyclerView
      *
      * @param userId user's (entrant's) ID whose events are to be fetched.
+    /**
+     * This method fetches events associated with the current user (entrant) from Firestore.
+     * It retrieves event IDs from the user's data and fetches their details.
+     *
+     * @param userId The user's (entrant's) ID whose events are to be fetched.
      */
     @SuppressLint("NotifyDataSetChanged")
     public void fetchEvents(String userId) {
         db.collection("users").document(userId).collection("events")
-                .get().addOnCompleteListener(task -> {
+                .get()
+                .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<String> eventIds = new ArrayList<>();  // Store event IDs
+                        List<String> eventIds = new ArrayList<>(); // Store event IDs
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            eventIds.add(document.getId());  // Collect each event ID
-                            statusList.add(document.getString("status"));
+                            eventIds.add(document.getId()); // Collect each event ID
+                            statusList.add(document.getString("status")); // Add status
                         }
 
-                        for (String eventId : eventIds) {
-                            db.collection("events").document(eventId).get()
+                        if (!eventIds.isEmpty()) {
+                            db.collection("events")
+                                    .whereIn("id", eventIds)
+                                    .get()
                                     .addOnCompleteListener(eventTask -> {
                                         if (eventTask.isSuccessful() && eventTask.getResult() != null) {
-                                            DocumentSnapshot eventDocument = eventTask.getResult();
-                                            String eventName = eventDocument.getString("name");
-                                            String organizerID = eventDocument.getString("userID");
-                                            boolean collectGeo = eventDocument.getBoolean("collectGeoStatus") != null && eventDocument.getBoolean("collectGeoStatus");
-                                            //String hashQrData = eventDocument.getString("hashQrData");
-                                            String hashQrData = "235b";
-                                            Timestamp eventDate = eventDocument.getTimestamp("eventDate");
-                                            Timestamp drawDate = eventDocument.getTimestamp("drawDate");
-                                            int maxEntries = eventDocument.contains("entriesLimit") ? eventDocument.getLong("entriesLimit").intValue() : -1;
-
-                                            Event event;
-                                            if (maxEntries != -1) {
-                                                event = new Event(eventName, organizerID, maxEntries, collectGeo, hashQrData, eventDate, drawDate);
-                                            } else {
-                                                event = new Event(eventName, organizerID, collectGeo, hashQrData, eventDate, drawDate);
+                                            eventList.clear(); // Clear existing events
+                                            for (QueryDocumentSnapshot eventDoc : eventTask.getResult()) {
+                                                eventList.add(eventDoc.toObject(Event.class)); // Add Event object from Firestore
+                                                Log.d("FirestoreData", "Loaded Event: " + eventDoc.getString("name"));
                                             }
-                                            event.setId(eventId);
-                                            eventList.add(event);
-                                            Log.d("FirestoreData", "Added Event: " + event.getName());
-                                            eventAdapter.notifyDataSetChanged(); // Refresh the adapter after each fetch
+                                            eventAdapter.notifyDataSetChanged(); // Refresh the adapter after fetching all events
                                         } else {
-                                            Log.e("FirestoreError", "Error getting event details: ", eventTask.getException());
+                                            Log.e("FirestoreError", "Error fetching event details: ", eventTask.getException());
+                                            Toast.makeText(this, "Failed to fetch events.", Toast.LENGTH_SHORT).show();
                                         }
                                     });
+                        } else {
+                            Log.d("FirestoreData", "No events found for this user.");
+                            Toast.makeText(this, "No events available.", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         Log.e("FirestoreError", "Error getting user events: ", task.getException());
+                        Toast.makeText(this, "Failed to load user events.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
 }

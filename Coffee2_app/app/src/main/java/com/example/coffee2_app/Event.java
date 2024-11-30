@@ -3,8 +3,6 @@ package com.example.coffee2_app;
 import android.graphics.Bitmap;
 
 import com.google.firebase.Timestamp;
-import com.google.zxing.BarcodeFormat;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,241 +10,260 @@ import java.util.List;
 import java.util.UUID;
 
 public class Event implements Serializable {
+    private String posterImageURL; // Firebase URL or Storage path
     private String id;
     private String name;
-    private String organizerID;
+    private String description;
+    private String facilityId;
     private int maxEntries;
+    private String imageID;
     private boolean collectGeo;
-    private List<User> attendees;
-    private List<User> waitingList;
+    private List<String> attendees;
+    private List<String> waitingList;
+    private List<String> waitlistEntrant;
+    private List<String> cancelledEntrant;
+    private List<String> invitedEntrant;
+    private List<String> declinedEntrant;
+    private List<String> finalEntrant;
     private String hashQrData;
     private Timestamp eventDate;
     private Timestamp drawDate;
-    private Bitmap QRCode;
     private String imageUrl;
 
     // No-argument constructor (Required for Firestore)
     public Event() {}
 
-    //Constructor if no maxAttendees
-    public Event(String name, String organizerID, boolean collectGeo, String hashQrData, Timestamp eventDate, Timestamp drawDate) {
+    // Constructor for an event without a maximum number of attendees
+    public Event(String name, String facilityId, boolean collectGeo, Timestamp eventDate, Timestamp drawDate) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.attendees = new ArrayList<>();
         this.waitingList = new ArrayList<>();
-        this.organizerID = organizerID;
-        this.eventDate= eventDate;
+        this.waitlistEntrant = new ArrayList<>();
+        this.cancelledEntrant = new ArrayList<>();
+        this.invitedEntrant = new ArrayList<>();
+        this.declinedEntrant = new ArrayList<>();
+        this.finalEntrant = new ArrayList<>();
+        this.facilityId = facilityId;
+        this.eventDate = eventDate;
         this.drawDate = drawDate;
         this.collectGeo = collectGeo;
-        this.hashQrData = hashQrData;
-        this.maxEntries = -1; // Indicator for infinite max attendees
+        this.hashQrData = this.id;
+        this.maxEntries = -1; // Indicates unlimited attendees
     }
 
-    // Constructor if maxAttendees
-    public Event(String name, String organizerID, int maxEntries, boolean collectGeo, String hashQrData, Timestamp eventDate, Timestamp drawDate) {
+    // Constructor for an event with a maximum number of attendees
+    public Event(String name, String facilityId, int maxEntries, boolean collectGeo, Timestamp eventDate, Timestamp drawDate, String description) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.attendees = new ArrayList<>();
         this.waitingList = new ArrayList<>();
-        this.organizerID = organizerID;
-        this.eventDate= eventDate;
+        this.waitlistEntrant = new ArrayList<>();
+        this.cancelledEntrant = new ArrayList<>();
+        this.invitedEntrant = new ArrayList<>();
+        this.declinedEntrant = new ArrayList<>();
+        this.finalEntrant = new ArrayList<>();
+        this.facilityId = facilityId;
+        this.eventDate = eventDate;
         this.drawDate = drawDate;
         this.collectGeo = collectGeo;
-        this.hashQrData = hashQrData;
+        this.hashQrData = this.id;
         this.maxEntries = maxEntries;
+        this.description = description;
     }
-    //constructor to check the events for Entrants
-    public Event(String sampleEvent) {
+
+    public Event(String name, String facilityId, int maxEntries, boolean collectGeo, Timestamp eventDate, Timestamp drawDate, String description, String posterImageID) {
         this.id = UUID.randomUUID().toString();
-        this.name = sampleEvent;
+        this.name = name;
         this.attendees = new ArrayList<>();
         this.waitingList = new ArrayList<>();
+        this.waitlistEntrant = new ArrayList<>();
+        this.cancelledEntrant = new ArrayList<>();
+        this.invitedEntrant = new ArrayList<>();
+        this.declinedEntrant = new ArrayList<>();
+        this.finalEntrant = new ArrayList<>();
+        this.facilityId = facilityId;
+        this.eventDate = eventDate;
+        this.drawDate = drawDate;
+        this.collectGeo = collectGeo;
+        this.hashQrData = this.id;
+        this.maxEntries = maxEntries;
+        this.description = description;
+        this.imageID = posterImageID;
     }
 
     /**
-     * Gets UUID of Event
-     * @return Event ID
+     * Adds an entrant to the waitlist.
+     * @param entrantId Entrant ID to add.
      */
+    public void addWaitlistEntrant(String entrantId) {
+        if (!waitlistEntrant.contains(entrantId)) {
+            waitlistEntrant.add(entrantId);
+        }
+    }
+
+    /**
+     * Adds an entrant to the cancelled list.
+     * @param entrantId Entrant ID to add.
+     */
+    public void addCancelledEntrant(String entrantId) {
+        if (!cancelledEntrant.contains(entrantId)) {
+            cancelledEntrant.add(entrantId);
+        }
+    }
+
+    /**
+     * Adds an entrant to the invited list.
+     * @param entrantId Entrant ID to add.
+     */
+    public void addInvitedEntrant(String entrantId) {
+        if (!invitedEntrant.contains(entrantId)) {
+            invitedEntrant.add(entrantId);
+        }
+    }
+
+    /**
+     * Adds an entrant to the declined list.
+     * @param entrantId Entrant ID to add.
+     */
+    public void addDeclinedEntrant(String entrantId) {
+        if (!declinedEntrant.contains(entrantId)) {
+            declinedEntrant.add(entrantId);
+        }
+    }
+
+    /**
+     * Adds an entrant to the final list.
+     * @param entrantId Entrant ID to add.
+     */
+    public void addFinalEntrant(String entrantId) {
+        if (!finalEntrant.contains(entrantId)) {
+            finalEntrant.add(entrantId);
+        }
+    }
+
+    // Getters and Setters for all fields
+
     public String getId() {
         return id;
     }
 
-    /**
-     * Setter method for ID, if needed
-     * @param id
-     */
     public void setId(String id) {
         this.id = id;
     }
 
-    /**
-     * Getter method for Name
-     * @return Name
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * Setter method for Name
-     * @param name
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * Getter method for Organizer owner
-     * @return Organizer
-     */
-    public String getOrganizer() {
-        return organizerID;
+    public String getFacilityId() {
+        return facilityId;
     }
 
-    /**
-     * Setter method for Organizer owner
-     * @param organizer
-     */
-    public void setOrganizer(String organizer) {
-        this.organizerID = organizerID;
+    public void setFacilityId(String facilityId) {
+        this.facilityId= this.facilityId;
     }
 
-    /**
-     * Getter method for max entries
-     * @return Event Max Entries
-     */
     public int getMaxEntries() {
         return maxEntries;
     }
 
-    /**
-     * Setter method for max entries
-     * @param maxEntries
-     */
     public void setMaxEntries(int maxEntries) {
         this.maxEntries = maxEntries;
     }
 
-    /**
-     * Getter method for Geo Checkbox
-     * @return Boolean
-     */
     public boolean isCollectGeo() {
         return collectGeo;
     }
 
-    /**
-     * Setter method for Geo Checkbox
-     * @param collectGeo
-     */
     public void setCollectGeo(boolean collectGeo) {
         this.collectGeo = collectGeo;
     }
 
-    /**
-     * Getter method for total attendees
-     * @return Attendee total
-     */
-    public List<User> getAttendees() {
+    public List<String> getAttendees() {
         return attendees;
     }
 
-    /**
-     * Setter method for total attendees
-     * @param attendees
-     */
-    public void setAttendees(List<User> attendees) {
+    public void setAttendees(List<String> attendees) {
         this.attendees = attendees;
     }
 
-    /**
-     * Getter method for waitlist
-     * @return Waitlist
-     */
-    public List<User> getWaitingList() {
+    public List<String> getWaitingList() {
         return waitingList;
     }
 
-    /**
-     * Setter method for waitlist
-     * @param waitingList
-     */
-    public void setWaitingList(List<User> waitingList) {
+    public void setWaitingList(List<String> waitingList) {
         this.waitingList = waitingList;
     }
 
-    /**
-     * Getter method for QR Code Data
-     * @return QR Code Data
-     */
+    public List<String> getWaitlistEntrant() {
+        return waitlistEntrant;
+    }
+
+    public void setWaitlistEntrant(List<String> waitlistEntrant) {
+        this.waitlistEntrant = waitlistEntrant;
+    }
+
+    public List<String> getCancelledEntrant() {
+        return cancelledEntrant;
+    }
+
+    public void setCancelledEntrant(List<String> cancelledEntrant) {
+        this.cancelledEntrant = cancelledEntrant;
+    }
+
+    public List<String> getInvitedEntrant() {
+        return invitedEntrant;
+    }
+
+    public void setInvitedEntrant(List<String> invitedEntrant) {
+        this.invitedEntrant = invitedEntrant;
+    }
+
+    public List<String> getDeclinedEntrant() {
+        return declinedEntrant;
+    }
+
+    public void setDeclinedEntrant(List<String> declinedEntrant) {
+        this.declinedEntrant = declinedEntrant;
+    }
+
+    public List<String> getFinalEntrant() {
+        return finalEntrant;
+    }
+
+    public void setFinalEntrant(List<String> finalEntrant) {
+        this.finalEntrant = finalEntrant;
+    }
+
     public String getHashQrData() {
         return hashQrData;
     }
 
-    /**
-     * Setter method for QR Code Data
-     * @param hashQrData
-     */
     public void setHashQrData(String hashQrData) {
         this.hashQrData = hashQrData;
     }
 
-    /**
-     * Getter method for event date
-     * @return Event Date
-     */
     public Timestamp getEventDate() {
         return eventDate;
     }
 
-    /**
-     * Setter method for event date
-     * @param eventDate
-     */
     public void setEventDate(Timestamp eventDate) {
         this.eventDate = eventDate;
     }
 
-    /**
-     * Getter method for draw date
-     * @return Draw Date
-     */
     public Timestamp getDrawDate() {
         return drawDate;
     }
 
-    /**
-     * Setter method for draw date
-     * @param drawDate
-     */
     public void setDrawDate(Timestamp drawDate) {
         this.drawDate = drawDate;
     }
 
-
-    private void generateQRCode() {
-        BarcodeEncoder QRGenerator = new BarcodeEncoder();
-
-        try {
-            this.QRCode = QRGenerator.encodeBitmap(this.id, BarcodeFormat.QR_CODE, 400, 400);
-        }
-        catch (Exception e) {
-            System.err.println(e);
-        }
-    }
-
-    /**
-     * Returns the hashed QR Code containing the Event's UUID.
-     * @return QR Code of Event UUID
-     */
-    public Bitmap getQRCode() {
-        if (this.QRCode == null) {
-            generateQRCode();
-        }
-        return this.QRCode;
-    }
-
-    // Getter and Setter
     public String getImageUrl() {
         return imageUrl;
     }
@@ -254,4 +271,41 @@ public class Event implements Serializable {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public String getDescription() {return this.description;}
+
+    /**
+     * Uploads the event poster image to Firestore.
+     *
+     * @param imageID The event poster image as a Bitmap.
+     */
+    public void setImage(String imageID) {
+        this.imageID = imageID;
+    }
+
+    public String getImageID() {
+        return imageID;
+    }
+
+    public String getPosterImageURL() {
+        return posterImageURL;
+    }
+
+    public void setPosterImageURL(String posterImageURL) {
+        this.posterImageURL = posterImageURL;
+    }
+
+    public void addAttendee(String attendeeId) {
+        if (!attendees.contains(attendeeId)) {
+            attendees.add(attendeeId);
+        }
+    }
+    public void removeAttendee(String attendeeId) {
+        attendees.remove(attendeeId);
+    }
+
 }
+

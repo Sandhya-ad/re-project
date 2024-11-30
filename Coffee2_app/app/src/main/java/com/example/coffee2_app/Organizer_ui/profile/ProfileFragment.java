@@ -19,8 +19,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.coffee2_app.DatabaseHelper;
+import com.example.coffee2_app.Facility;
 import com.example.coffee2_app.ImageGenerator;
-import com.example.coffee2_app.Organizer;
 import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentOrganizerProfileBinding;
@@ -37,7 +37,7 @@ import java.io.InputStream;
  */
 public class ProfileFragment extends Fragment {
 
-    private Organizer organizer;
+    private Facility facility;
     private static final int PICK_IMAGE_REQUEST = 1;
     private FragmentOrganizerProfileBinding binding;
     private boolean isEditing = false;
@@ -65,14 +65,14 @@ public class ProfileFragment extends Fragment {
 
         OrganizerHomeActivity activity = (OrganizerHomeActivity) getActivity();
         if (activity != null) {
-            organizer = activity.getOrganizer();  // Get the Organizer instance
+            facility = activity.getFacility();  // Get the Organizer instance
             deviceID = activity.getDeviceID();
         }
 
-        if (organizer != null) {
+        if (facility != null) {
             displayOrganizerDetails();  // Populate fields with Organizer data
         } else {
-            organizer = new Organizer(deviceID); // Case if Organizer is missing
+           facility = new Facility(deviceID); // Case if Organizer is missing
             Log.d("test", "Created new Org");
             Toast.makeText(getActivity(), "Profile Error: Organizer data is missing.", Toast.LENGTH_SHORT).show();
         }
@@ -109,8 +109,8 @@ public class ProfileFragment extends Fragment {
                         }
                         else if (item.getItemId() == R.id.remove_image) {
                             ImageGenerator gen;
-                            if (organizer.getName() != null) {
-                                gen = new ImageGenerator(organizer.getName());
+                            if (facility.getName() != null) {
+                                gen = new ImageGenerator(facility.getName());
                             }
                             else {
                                 gen = new ImageGenerator("User");
@@ -148,15 +148,15 @@ public class ProfileFragment extends Fragment {
      * Gets profile picture from Firestore, or generates a default image.
      */
     private void displayOrganizerDetails() {
-        if(organizer.getName() != null) { binding.organizerName.setText(organizer.getName()); }
+        if(facility.getName() != null) { binding.organizerName.setText(facility.getName()); }
         else { binding.organizerName.setText(""); } // Case where changes are cancelled on a null
-        if(organizer.getEmail() != null) { binding.organizerEmail.setText(organizer.getEmail()); }
+        if(facility.getEmail() != null) { binding.organizerEmail.setText(facility.getEmail()); }
         else { binding.organizerEmail.setText(""); }
-        if(organizer.getAddress() != null) { binding.organizerAddress.setText(organizer.getAddress()); }
+        if(facility.getAddress() != null) { binding.organizerAddress.setText(facility.getAddress()); }
         else { binding.organizerAddress.setText(""); }
-        if (organizer.getImageID() != null) {
+        if (facility.getImageID() != null) {
             // If document doesn't exist, fallback to default photo
-            DocumentReference doc = db.collection("images").document(organizer.getImageID());
+            DocumentReference doc = db.collection("images").document(facility.getImageID());
             doc.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
@@ -173,9 +173,9 @@ public class ProfileFragment extends Fragment {
                         // If doc doesn't exist, save default picture
                         Log.d("Firestore", "Document does not exist.");
                         ImageGenerator gen;
-                        if (organizer.getName() != null) {
-                            gen = new ImageGenerator(organizer.getName());
-                            organizer.setImage(gen.getImg());
+                        if (facility.getName() != null) {
+                            gen = new ImageGenerator(facility.getName());
+                            facility.setImage(gen.getImg());
                         }
                         else {
                             gen = new ImageGenerator("User");
@@ -190,9 +190,9 @@ public class ProfileFragment extends Fragment {
         }
         else {
             ImageGenerator gen;
-            if (organizer.getName() != null) {
-                gen = new ImageGenerator(organizer.getName());
-                organizer.setImage(gen.getImg());
+            if (facility.getName() != null) {
+                gen = new ImageGenerator(facility.getName());
+                facility.setImage(gen.getImg());
             }
             else {
                 gen = new ImageGenerator("User");
@@ -281,19 +281,19 @@ public class ProfileFragment extends Fragment {
         String email = binding.organizerEmail.getText().toString();
         String address = binding.organizerAddress.getText().toString();
 
-        if (!name.isEmpty()) { organizer.setName(name); }
+        if (!name.isEmpty()) { facility.setName(name); }
         else { ret = false; } // Name is a mandatory field so make a popup if empty
-        organizer.setEmail(email);
-        organizer.setAddress(address);
+        facility.setEmail(email);
+        facility.setAddress(address);
 
         if (bmp != null) {
             Log.d("ProfilePhoto", "Saved");
-            organizer.setImage(bmp);
+            facility.setImage(bmp);
         }
 
-        if (organizer.getImageID() == null) {
-            ImageGenerator gen = new ImageGenerator(organizer.getName());
-            organizer.setImage(gen.getImg());
+        if (facility.getImageID() == null) {
+            ImageGenerator gen = new ImageGenerator(facility.getName());
+            facility.setImage(gen.getImg());
         }
 
         //Just to check before the db is implemented
@@ -303,7 +303,7 @@ public class ProfileFragment extends Fragment {
 
         if (ret) {
             toggleEditMode();
-            DatabaseHelper.updateOrganizer(organizer);
+            DatabaseHelper.updateFacility(facility);
         }
         else {
             Toast.makeText(getActivity(), "Please set a name.", Toast.LENGTH_LONG).show();

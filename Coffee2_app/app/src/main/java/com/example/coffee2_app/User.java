@@ -36,7 +36,7 @@ public class User implements Serializable {
     /**
      * The Organizer object associated with the user if they have the organizer role.
      */
-    private Organizer organizer;
+    private Facility facility;
 
     /**
      * Constructor to initialize a User with a specific user ID. By default, assigns
@@ -124,8 +124,11 @@ public class User implements Serializable {
      *
      * @return The Organizer object if the user has the organizer role, null otherwise.
      */
-    public Organizer getOrganizer() {
-        return hasOrganizerRole() ? organizer : null;
+    public Facility getFacility() {
+        return hasOrganizerRole() ? facility : null;
+    }
+    public void setFacility(Facility facility) {
+        this.facility = facility;
     }
 
     // Getters and Setters for common fields
@@ -162,7 +165,7 @@ public class User implements Serializable {
             if (role.equals("entrant")) {
                 entrant = new Entrant(userId);
             } else if (role.equals("organizer")) {
-                organizer = new Organizer(userId);
+                facility = new Facility(userId);
             }
         }
     }
@@ -178,7 +181,7 @@ public class User implements Serializable {
             if (role.equals("entrant")) {
                 entrant = null;
             } else if (role.equals("organizer")) {
-                organizer = null;
+                facility = null;
             }
         }
     }

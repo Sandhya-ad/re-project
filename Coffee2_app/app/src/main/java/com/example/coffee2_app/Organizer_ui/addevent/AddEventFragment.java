@@ -1,50 +1,70 @@
 package com.example.coffee2_app.Organizer_ui.addevent;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.coffee2_app.Organizer;
+import com.example.coffee2_app.DatabaseHelper;
+import com.example.coffee2_app.Event;
+import com.example.coffee2_app.Facility;
 import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentAddEventBinding;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Fragment that allows an organizer to create a new event.
- * Has UI for entering event details. The event details are saved to Firebase Firestore upon submission.
+ * Includes UI for entering event details and uploading an event poster.
  */
 public class AddEventFragment extends Fragment {
 
-    private Organizer organizer;
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private Facility facility;
     private String deviceID;
     private FragmentAddEventBinding binding;
     private FirebaseFirestore db;
+    private Bitmap eventPosterBitmap;
+    private String posterImageID;
+    private ActivityResultLauncher<Intent> pickImageLauncher;
 
     /**
-     * Inflates the layout, initializes Firestore and click listeners.
+     * Inflates the layout, initializes Firestore, and sets up the image picker.
      *
-     * @param inflater  LayoutInflater to inflate views in the fragment
-     * @param container          Parent view to contain the fragment's UI
-     * @param savedInstanceState Bundle containing the fragment's saved state
-     * @return The root view of the fragment
+     * @param inflater  LayoutInflater to inflate views in the fragment.
+     * @param container Parent view to contain the fragment's UI.
+     * @param savedInstanceState Bundle containing the fragment's saved state.
+     * @return The root view of the fragment.
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,15 +73,35 @@ public class AddEventFragment extends Fragment {
         View root = binding.getRoot();
         db = FirebaseFirestore.getInstance();
 
-        // Back button listener
-        binding.backButton.setOnClickListener(v -> getActivity().onBackPressed());
-
-        // Save button click listener to save profile data
-        binding.saveButton.setOnClickListener(view -> {createEvent();});
-
         // Set up the button to open the DatePickerDialog
         binding.dateButton.setOnClickListener(v -> openDateTimePicker(binding.eventDate));
         binding.dateDrawButton.setOnClickListener(v -> openDateTimePicker(binding.eventDrawDate));
+
+        // Set up the Select Poster button
+        binding.selectPosterButton.setOnClickListener(v -> selectPosterImage());
+
+        // Save button click listener to save event data
+        binding.saveButton.setOnClickListener(view -> createEvent());
+
+        // Back button listener
+        binding.backButton.setOnClickListener(v -> getActivity().onBackPressed());
+
+        // Set up ActivityResultLauncher for image selection
+        pickImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri selectedImageUri = result.getData().getData();
+                        try {
+                            InputStream imageStream = requireContext().getContentResolver().openInputStream(selectedImageUri);
+                            eventPosterBitmap = BitmapFactory.decodeStream(imageStream);
+                            binding.eventPoster.setImageBitmap(eventPosterBitmap); // Display poster preview
+                        } catch (Exception e) {
+                            Toast.makeText(getContext(), "Failed to load image.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        );
 
         return root;
     }
@@ -74,15 +114,15 @@ public class AddEventFragment extends Fragment {
         super.onStart();
         OrganizerHomeActivity activity = (OrganizerHomeActivity) getActivity();
         if (activity != null) {
-            organizer = activity.getOrganizer(); // Get the Organizer instance
+            facility = activity.getFacility(); // Get the Organizer instance
             deviceID = activity.getDeviceID();
             Log.d("AEF_get", "Activity works");
         } else {
             Log.e("AEF_get", "Activity null");
         }
 
-        if (organizer != null) {
-            Log.d("AEF_Org", "Organizer ID: " + organizer.getUserID());
+        if (facility != null) {
+            Log.d("AEF_Org", "Organizer ID: " + facility.getUserID());
         } else {
             Log.e("AEF_Org", "Organizer is null");
             Toast.makeText(getActivity(), "Profile Error: Organizer data is missing.", Toast.LENGTH_SHORT).show();
@@ -111,123 +151,165 @@ public class AddEventFragment extends Fragment {
 
         // Show DatePickerDialog first
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-                R.style.CustomDatePickerDialog,
                 (view, selectedYear, selectedMonth, selectedDay) -> {
                     // When date is selected, show TimePickerDialog
-                    TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(
+                            requireContext(),
                             (timeView, selectedHour, selectedMinute) -> {
                                 // Format the selected date and time
                                 String selectedDateTime = (selectedMonth + 1) + "/" + selectedDay + "/" + selectedYear +
                                         " " + String.format("%02d:%02d", selectedHour, selectedMinute);
                                 // Set the formatted date and time to the TextView
                                 dateView.setText(selectedDateTime);
-                            }, hour, minute, true);
+                            },
+                            hour,
+                            minute,
+                            true
+                    );
+
+                    // Customize TimePickerDialog buttons
+                    timePickerDialog.setOnShowListener(dialog -> {
+                        Button okButton = timePickerDialog.getButton(TimePickerDialog.BUTTON_POSITIVE);
+                        Button cancelButton = timePickerDialog.getButton(TimePickerDialog.BUTTON_NEGATIVE);
+
+                        if (okButton != null) {
+                            okButton.setTextColor(requireContext().getColor(android.R.color.black)); // Set OK button color to black
+                        }
+                        if (cancelButton != null) {
+                            cancelButton.setTextColor(requireContext().getColor(android.R.color.black)); // Set Cancel button color to black
+                        }
+                    });
+
                     timePickerDialog.show();
-                }, year, month, day);
+                },
+                year,
+                month,
+                day
+        );
+
+        // Customize DatePickerDialog buttons
+        datePickerDialog.setOnShowListener(dialog -> {
+            Button okButton = datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE);
+            Button cancelButton = datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE);
+
+            if (okButton != null) {
+                okButton.setTextColor(requireContext().getColor(android.R.color.black)); // Set OK button color to black
+            }
+            if (cancelButton != null) {
+                cancelButton.setTextColor(requireContext().getColor(android.R.color.black)); // Set Cancel button color to black
+            }
+        });
+
         datePickerDialog.show();
     }
 
     /**
-     * Creates a new event with details. Validates input fields, writes the event data to Firestore.
-     * Displays a Toast message indicating success or failure.
+     * Opens an intent to pick an image from the gallery.
+     */
+    private void selectPosterImage() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickImageLauncher.launch(intent);
+    }
+
+    /**
+     * Uploads the event poster to Firestore.
+     */
+    private void uploadEventPoster() {
+        if (eventPosterBitmap == null) {
+            Log.e("EventPoster", "Bitmap is null. Cannot upload poster.");
+            return;
+        }
+
+        try {
+            ByteArrayOutputStream converter = new ByteArrayOutputStream();
+            eventPosterBitmap.compress(Bitmap.CompressFormat.PNG, 100, converter);
+            String encodedImage = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                encodedImage = Base64.getEncoder().encodeToString(converter.toByteArray());
+            }
+            posterImageID = UUID.nameUUIDFromBytes(encodedImage.getBytes()).toString();
+
+            Map<String, Object> imageData = new HashMap<>();
+            imageData.put("imageData", encodedImage);
+
+            db.collection("images")
+                    .document(posterImageID)
+                    .set(imageData)
+                    .addOnSuccessListener(aVoid -> Log.d("EventPoster", "Poster uploaded successfully: " + posterImageID))
+                    .addOnFailureListener(e -> Log.e("EventPoster", "Poster upload failed", e));
+        } catch (Exception e) {
+            Log.e("EventPoster", "Error while uploading poster", e);
+        }
+    }
+
+    /**
+     * Creates a new event and uploads its details to Firestore.
      */
     private void createEvent() {
         String name = binding.eventName.getText().toString().trim();
         String eventDateString = binding.eventDate.getText().toString().trim();
         String drawDateString = binding.eventDrawDate.getText().toString().trim();
         String entriesLimitString = binding.eventEntries.getText().toString().trim();
-        int entriesLimit;
+        String description = binding.eventDescription.getText().toString().trim();
         boolean geolocation = binding.eventGeolocation.isChecked();
 
-        // Valid Entry Logic
+        // Validation logic
         if (name.isEmpty() || eventDateString.isEmpty() || drawDateString.isEmpty()) {
-            Toast.makeText(getContext(), "Please fill out all fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (name.length() > 100) {
-            Toast.makeText(getContext(), "Please limit book name to 50 characters", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Please fill out all required fields.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Update the SimpleDateFormat to parse date and time
+        if (name.length() > 100) {
+            Toast.makeText(getContext(), "Event name cannot exceed 100 characters.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Parse dates
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
         sdf.setLenient(false);
-
         Date eventDate, drawDate;
+
         try {
             eventDate = sdf.parse(eventDateString);
             drawDate = sdf.parse(drawDateString);
         } catch (ParseException e) {
-            Toast.makeText(getContext(), "Please enter a valid date in MM/dd/yyyy HH:mm format.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Invalid date format. Use MM/dd/yyyy HH:mm.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Convert Date objects to Timestamps
-        Timestamp eventTimestamp = new Timestamp(eventDate);
-        Timestamp drawTimestamp = new Timestamp(drawDate);
-
-        // Initialize Calendars with the Date objects
-        Calendar eventCalendar = Calendar.getInstance();
-        Calendar drawCalendar = Calendar.getInstance();
-        eventCalendar.setTime(eventDate);
-        drawCalendar.setTime(drawDate);
-
-        Calendar currentDate = Calendar.getInstance();
-
-        try {
-            // Check if either date is in the past
-            if (eventCalendar.before(currentDate) || drawCalendar.before(currentDate)) {
-                Toast.makeText(getContext(), "Please enter a future date and time", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            // Ensure event date is after draw date
-            if (eventCalendar.before(drawCalendar)) {
-                Toast.makeText(getContext(), "Please enter an event date AFTER the draw date", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            // Validate the year range for both dates
-            int eventYear = eventCalendar.get(Calendar.YEAR);
-            int drawYear = drawCalendar.get(Calendar.YEAR);
-            if (eventYear > 3000 || drawYear > 3000) {
-                Toast.makeText(getContext(), "Please enter a valid year (2024-3000)", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        } catch (NumberFormatException e) {
-            Toast.makeText(getContext(), "Please enter a valid year", Toast.LENGTH_SHORT).show();
+        // Validate date logic
+        if (drawDate.after(eventDate)) {
+            Toast.makeText(getContext(), "Draw date cannot be after the event date.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (entriesLimitString.isEmpty()) {
-            entriesLimit = -1;
-        } else {
-            entriesLimit = Integer.parseInt(entriesLimitString);
+        int entriesLimit = entriesLimitString.isEmpty() ? -1 : Integer.parseInt(entriesLimitString);
+
+        // Create Event object
+        Event event = new Event(name, facility.getUserID(), entriesLimit, geolocation, new Timestamp(eventDate), new Timestamp(drawDate), description);
+
+        if (eventPosterBitmap != null) {
+            uploadEventPoster(); // Upload the poster and set the image ID
+            event.setImage(posterImageID);
         }
 
-        //Just to check before the db is implemented
-        String message = "Event Created - Name: " + name + ", Event Date: " + eventDateString + ", Draw Date: " + drawDateString + ", Geolocation: " + (geolocation ? "On" : "Off");
+        Log.d("CreateEvent", "Saving event: " + event.toString());
+        DatabaseHelper.addEvent(event,facility);
+        Toast.makeText(getContext(), "Event Published.", Toast.LENGTH_SHORT).show();
+        resetUI();
+    }
 
-        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
-
-        // Create a map for the event data
-        Map<String, Object> eventData = new HashMap<>();
-        eventData.put("name", name);
-        eventData.put("facilityID", organizer.getUserID());
-        eventData.put("eventDate", eventTimestamp);
-        eventData.put("drawDate", drawTimestamp);
-        eventData.put("entriesLimit", entriesLimit);
-        eventData.put("collectGeoStatus", geolocation);
-
-        // Write to Firestore
-        db.collection("events") // Change to your collection name
-                .add(eventData)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d("FirestoreCheck", "DocumentSnapshot added with ID: " + documentReference.getId());
-                    Toast.makeText(getActivity(), "Event Created!", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Log.d("FirestoreCheck", "Error adding document", e);
-                    Toast.makeText(getActivity(), "Error creating event.", Toast.LENGTH_SHORT).show();
-                });
+    /**
+     * Resets all input fields in the UI to their default/blank states.
+     */
+    private void resetUI() {
+        binding.eventName.setText("");         // Clear event name
+        binding.eventDate.setText("");         // Clear event date
+        binding.eventDrawDate.setText("");     // Clear draw date
+        binding.eventEntries.setText("");      // Clear entries limit
+        binding.eventGeolocation.setChecked(false); // Uncheck geolocation checkbox
+        binding.eventDescription.setText("");  // Clear description
+        binding.eventPoster.setImageResource(0); // Clear poster preview
     }
 
     /**

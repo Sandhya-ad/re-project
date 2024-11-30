@@ -3,70 +3,69 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginStart="4dp"
-    android:layout_marginEnd="4dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="6dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginTop="12dp"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
     android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="98dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:padding="8dp">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:orientation="vertical">
+        <!-- Image Section -->
+        <ImageView
+            android:id="@+id/event_image"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginEnd="16dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_event_placeholder"
+            android:contentDescription="Event Image" />
 
+        <!-- Event Details Section -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <!-- Event Title -->
             <TextView
                 android:id="@+id/event_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/event_title"
+                android:text="Event Name"
                 android:textColor="@android:color/black"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <!-- Address -->
-            <TextView
-                android:id="@+id/event_address"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Address"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="16sp" />
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
 
             <!-- Event Date -->
             <TextView
                 android:id="@+id/event_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/event_date"
+                android:text="Date: MM/DD/YYYY"
                 android:textColor="@android:color/darker_gray"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
 
+            <!-- Event Description -->
+            <TextView
+                android:id="@+id/event_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Description goes here"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="16sp"
+                android:ellipsize="end"
+                android:maxLines="3" />
 
         </LinearLayout>
-
-        <!-- STATUS text is to update later in code
-        <TextView
-            android:id="@+id/event_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:layout_marginVertical="0dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/status"
-            android:textSize="16sp"
-            android:textStyle="bold" /> -->
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>

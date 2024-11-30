@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -26,11 +27,11 @@ public class Entrant implements Serializable {
     /**
      * List of events the entrant has signed up for.
      */
-    private final ArrayList<Event> signedUpEvents;
+    private final ArrayList<String> signedUpEvents;
     /**
      * List of events the entrant has waitlisted.
      */
-    private final ArrayList<Event> waitListEvents;
+    private ArrayList<Event> waitListEvents;
 
     /**
      * The name of the entrant.
@@ -92,8 +93,8 @@ public class Entrant implements Serializable {
         this.userId = userId;
         this.name = name;
         this.email = email;
-        this.signedUpEvents = new ArrayList<Event>();
-        this.waitListEvents = new ArrayList<Event>();
+        this.signedUpEvents = new ArrayList<String>();
+        this.waitListEvents = new ArrayList<>();
         this.profilePicture = profilePicture;
     }
 
@@ -106,7 +107,7 @@ public class Entrant implements Serializable {
         this.userId = userId;
         this.adminNotification = false;
         this.organizerNotification = false;
-        this.signedUpEvents = new ArrayList<Event>();
+        this.signedUpEvents = new ArrayList<>();
         this.waitListEvents = new ArrayList<Event>();
     }
 
@@ -215,7 +216,7 @@ public class Entrant implements Serializable {
      *
      * @param event The event to add.
      */
-    public void addSignedUpEvent(Event event) {
+    public void addSignedUpEvent(String event) {
         signedUpEvents.add(event);
         System.out.println(this.getName() + " signed up for event: " + event);
     }
@@ -241,7 +242,7 @@ public class Entrant implements Serializable {
      *
      * @return An ArrayList of waitlisted events.
      */
-    public ArrayList<Event> getWaitListedEvents() {
+    public ArrayList<Event> getWaitListEvents() {
         return waitListEvents;
     }
     /**
@@ -249,7 +250,7 @@ public class Entrant implements Serializable {
      *
      * @return An ArrayList of signed-up events.
      */
-    public ArrayList<Event> getSignedUpEvents() {
+    public ArrayList<String> getSignedUpEvents() {
         return signedUpEvents;
     }
 
@@ -297,5 +298,9 @@ public class Entrant implements Serializable {
     }
     public String getImageID() {
         return this.imageID;
+    }
+
+    public void setWaitListEvents(List<String> waitListedEvents) {
+        this.waitListEvents = waitListEvents;
     }
 }

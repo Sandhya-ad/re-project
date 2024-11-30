@@ -143,7 +143,7 @@ public class BrowseProfilesAdapter extends RecyclerView.Adapter<BrowseProfilesAd
                         Log.d("DeleteUser", "Entrant role set to null successfully.");
 
                         // Check if user has no other roles
-                        if (user.getOrganizer() == null && !user.getIsAdmin()) {
+                        if (user.getFacility() == null && !user.getIsAdmin()) {
                             db.collection("users")
                                     .document(user.getUserId())
                                     .delete()
@@ -169,7 +169,7 @@ public class BrowseProfilesAdapter extends RecyclerView.Adapter<BrowseProfilesAd
      */
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
 
-        TextView profileName;
+        public TextView profileName;
         TextView profileEmail;
         ImageButton deleteButton;
         ImageView profileImage; // ImageView for profile picture

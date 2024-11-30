@@ -1,87 +1,168 @@
 package com.example.coffee2_app.Admin_ui.browseFacilities;
-
-import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-
+import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
-import com.example.coffee2_app.Facility;
+
+import com.example.coffee2_app.DatabaseHelper;
+import com.example.coffee2_app.ImageGenerator;
 import com.example.coffee2_app.R;
+import com.example.coffee2_app.User;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.Toast;
-
-import com.google.firebase.firestore.FirebaseFirestore;
-
-public class BrowseFacilitiesAdapter extends RecyclerView.Adapter<BrowseFacilitiesAdapter.FacilityViewHolder> {
+/**
+ * Adapter class for managing and displaying user profiles in a RecyclerView.
+ * Each profile allows viewing the user's name, email, and includes a delete option.
+ * Provides a delete confirmation dialog to prevent accidental deletions.
+ */
+public class BrowseFacilitiesAdapter extends RecyclerView.Adapter<com.example.coffee2_app.Admin_ui.browseFacilities.BrowseFacilitiesAdapter.FacilityViewHolder> {
 
     private final Context context;
-    private final List<Facility> facilityList;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final List<User> userList;
+    private final FirebaseFirestore db;
 
-    public BrowseFacilitiesAdapter(Context context, List<Facility> facilityList) {
+    /**
+     * Constructor to initialize the adapter with a context and a list of users.
+     *
+     * @param context  The context of the activity or fragment.
+     * @param userList The list of User objects to be displayed.
+     */
+    public BrowseFacilitiesAdapter(Context context, List<User> userList) {
         this.context = context;
-        this.facilityList = facilityList;
+        this.userList = userList;
+        this.db = FirebaseFirestore.getInstance(); // Initialize Firestore
     }
 
+    /**
+     * Creates and returns a ProfileViewHolder that holds the view for each user profile item.
+     *
+     * @param parent   The parent view group.
+     * @param viewType The view type of the new view.
+     * @return A ProfileViewHolder that holds the view for each item.
+     */
     @NonNull
     @Override
-    public FacilityViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.grid_item, parent, false);
-        return new FacilityViewHolder(view);
+    public com.example.coffee2_app.Admin_ui.browseFacilities.BrowseFacilitiesAdapter.FacilityViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.admin_facility_entry, parent, false);
+        return new com.example.coffee2_app.Admin_ui.browseFacilities.BrowseFacilitiesAdapter.FacilityViewHolder(view);
     }
+    /**
+     * Binds user data to each item in the RecyclerView and sets up the delete button listener.
+     *
+     * @param holder   The ProfileViewHolder to bind data to.
+     * @param position The position of the item in the list.
+     */
 
     @Override
-    public void onBindViewHolder(@NonNull FacilityViewHolder holder, int position) {
-        Facility facility = facilityList.get(position);
-        Glide.with(context).load(facility.getImageUrl()).into(holder.imageView);
+    public void onBindViewHolder(@NonNull BrowseFacilitiesAdapter.FacilityViewHolder holder, int position) {
 
-        // Set up the delete button click listener
-        holder.deleteButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(context)
-                    .setTitle("Delete Facility")
-                    .setMessage("Are you sure you want to delete this facility?")
-                    .setPositiveButton("Yes", (dialog, which) -> deleteFacility(facility.getId(), position))
-                    .setNegativeButton("No", null)
-                    .show();
-        });
     }
 
-    private void deleteFacility(String facilityId, int position) {
-        // Delete facility from Firestore
-        db.collection("facilities").document(facilityId)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    facilityList.remove(position);
-                    notifyItemRemoved(position);
-                    Toast.makeText(context, "Facility removed successfully", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> Toast.makeText(context, "Failed to remove facility", Toast.LENGTH_SHORT).show());
-    }
-
+    /**
+     * Returns the total number of items in the RecyclerView.
+     *
+     * @return The size of the user list.
+     */
     @Override
     public int getItemCount() {
-        return facilityList.size();
+        return userList.size();
     }
 
-    public static class FacilityViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
-        ImageButton deleteButton;
+    /**
+     * Displays a confirmation dialog before deleting a user profile.
+     *
+     * @param user     The user to be deleted.
+     * @param position The position of the user in the RecyclerView.
+     */
+    private void showDeleteConfirmationDialog(User user, int position) {
+        String entrantName = user.getEntrant() != null && user.getEntrant().getName() != null
+                ? user.getEntrant().getName()
+                : "this profile";
 
-        public FacilityViewHolder(@NonNull View itemView) {
-            super(itemView);
-            imageView = itemView.findViewById(R.id.event_image);
-            deleteButton = itemView.findViewById(R.id.delete_button);
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle("Confirm Deletion")
+                .setMessage("Are you sure you want to delete " + entrantName + "?")
+                .setPositiveButton("Delete", (dialogInterface, which) -> deleteFacility(user, position))
+                .setNegativeButton("Cancel", (dialogInterface, which) -> dialogInterface.dismiss())
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            positiveButton.setTextColor(Color.BLACK);
+            negativeButton.setTextColor(Color.BLACK);
+        });
+
+        dialog.show();
+    }
+
+    /**
+     * Deletes a user profile from Firestore and updates the RecyclerView.
+     *
+     * @param user     The user to delete.
+     * @param position The position of the user in the RecyclerView.
+     */
+    private void deleteFacility(User user, int position) {
+        if (user.getEntrant() != null) {
+            db.collection("users")
+                    .document(user.getUserId())
+                    .update("orgnizer", null)
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("DeleteUser", "Entrant role set to null successfully.");
+
+                        // Check if user has no other roles
+                        if (user.getEntrant() == null && !user.getIsAdmin()) {
+                            db.collection("users")
+                                    .document(user.getUserId())
+                                    .delete()
+                                    .addOnSuccessListener(success -> {
+                                        Log.d("DeleteUser", "User document deleted as no other roles exist.");
+                                        userList.remove(position);
+                                        notifyItemRemoved(position);
+                                    })
+                                    .addOnFailureListener(e -> Log.e("DeleteUser", "Failed to delete user document", e));
+                        } else {
+                            user.setFacility(null);
+                            userList.remove(position);
+                            notifyItemRemoved(position);
+                            DatabaseHelper.updateUser(user);
+                        }
+                    })
+                    .addOnFailureListener(e -> Log.e("DeleteUser", "Failed to set entrant to null", e));
         }
     }
 
+    /**
+     * ViewHolder class to hold and manage each user profile item in the RecyclerView.
+     */
+    public static class FacilityViewHolder extends RecyclerView.ViewHolder {
+
+        TextView facilityName;
+        ImageButton deleteButton;
+        ImageView facilityImage; // ImageView for profile picture
+
+        /**
+         * Constructor for initializing the ProfileViewHolder with views from the layout.
+         *
+         * @param itemView The root view of the profile item layout.
+         */
+        public FacilityViewHolder(@NonNull View itemView) {
+            super(itemView);
+            facilityName = itemView.findViewById(R.id.facility_name);
+            deleteButton = itemView.findViewById(R.id.delete_button);
+            facilityImage = itemView.findViewById(R.id.profile_image); // Ensure this ID matches the ImageView in XML
+        }
+    }
 }

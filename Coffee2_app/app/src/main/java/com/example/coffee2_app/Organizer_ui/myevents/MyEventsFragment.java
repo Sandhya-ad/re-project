@@ -1,11 +1,14 @@
 package com.example.coffee2_app.Organizer_ui.myevents;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.coffee2_app.Event;
 import com.example.coffee2_app.EventsAdapter;
-import com.example.coffee2_app.Organizer;
+import com.example.coffee2_app.Facility;
 import com.example.coffee2_app.OrganizerHomeActivity;
 import com.example.coffee2_app.R;
 import com.example.coffee2_app.databinding.FragmentMyEventsBinding;
@@ -32,100 +35,118 @@ public class MyEventsFragment extends Fragment {
 
     private FragmentMyEventsBinding binding;
     private FirebaseFirestore db;
-    Organizer organizer;
-    public String deviceID;
-    private EventsAdapter eventsAdapter; // Create an adapter for your RecyclerView
-    private List<Event> eventList; // Create a list to hold events
+    private Facility facility;
+    private String deviceID;
+    private EventsAdapter eventsAdapter; // Adapter for RecyclerView
+    private List<Event> eventList; // List to hold events
 
     /**
-     * Inflates the layout, initializes Firestore and click listeners.
+     * Inflates the layout, initializes Firestore, and sets up the RecyclerView and click listeners.
      *
-     * @param inflater  LayoutInflater to inflate views in the fragment
-     * @param container          Parent view to contain the fragment's UI
-     * @param savedInstanceState Bundle containing the fragment's saved state
-     * @return The root view of the fragment
+     * @param inflater  LayoutInflater to inflate views in the fragment.
+     * @param container Parent view to contain the fragment's UI.
+     * @param savedInstanceState Bundle containing the fragment's saved state.
+     * @return The root view of the fragment.
      */
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentMyEventsBinding.inflate(inflater, container, false); // Initialize binding
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentMyEventsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        Log.d("EventDetailsFragment", "onCreateView called");
+        Log.d("MyEventsFragment", "onCreateView called");
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
         // Set up RecyclerView
-        binding.viewEventList.setLayoutManager(new LinearLayoutManager(getContext())); // Use binding to access the RecyclerView
+        binding.viewEventList.setLayoutManager(new LinearLayoutManager(getContext()));
         eventList = new ArrayList<>();
-        eventsAdapter = new EventsAdapter(eventList, this); // Your custom adapter
-        binding.viewEventList.setAdapter(eventsAdapter); // Use binding to set the adapter
+        eventsAdapter = new EventsAdapter(eventList, requireContext());
+        binding.viewEventList.setAdapter(eventsAdapter);
 
-        // Find the Back Button from the layout
+        // Back Button functionality
         ImageButton backButton = root.findViewById(R.id.back_button);
-
-        // Handle Back Button click
-        backButton.setOnClickListener(v -> getActivity().onBackPressed()); // Navigate back when clicked
-
-        // Fetch events from Firestore
-        fetchEvents();
+        backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
         return root;
     }
 
     /**
-     * Retrieves organizer and deviceID from the parent activity and logs status.
+     * Retrieves organizer and deviceID from the parent activity and fetches events.
      */
     @Override
     public void onStart() {
         super.onStart();
         OrganizerHomeActivity activity = (OrganizerHomeActivity) getActivity();
         if (activity != null) {
-            organizer = activity.getOrganizer(); // Get the Organizer instance
+            facility = activity.getFacility(); // Get the Facility instance
             deviceID = activity.getDeviceID();
-            Log.d("MEF_get", "Activity works");
-        } else {
-            Log.e("MEF_get", "Activity null");
-        }
+            Log.d("MyEventsFragment", "Facility and Device ID retrieved.");
 
-        if (organizer != null) {
-            Log.d("MEF_Org", "Organizer ID in MyEvents: " + organizer.getUserID());
+            if (facility != null) {
+                Log.d("MyEventsFragment", "Facility ID: " + facility.getUserID());
+                fetchEventsFromFacility();
+            } else {
+                Log.e("MyEventsFragment", "Facility is null.");
+                Toast.makeText(getContext(), "Error: Facility data is missing.", Toast.LENGTH_SHORT).show();
+            }
         } else {
-            Log.e("MEF_Org", "Organizer is null");
-            Toast.makeText(getActivity(), "Profile Error: Organizer data is missing.", Toast.LENGTH_SHORT).show();
-        }
-
-        if (deviceID != null) {
-            Log.d("MEF_Dev", "DeviceID in MyEvents: " + deviceID);
-        } else {
-            Log.e("MEF_Dev", "DeviceID is null");
+            Log.e("MyEventsFragment", "OrganizerHomeActivity is null.");
         }
     }
 
-    private void fetchEvents() {
-        db.collection("events") // Use your collection name
+    /**
+     * Fetches events listed in the Facility's `events` field.
+     */
+    private void fetchEventsFromFacility() {
+        if (facility == null) {
+            Log.e("MyEventsFragment", "Facility is null. Cannot fetch events.");
+            Toast.makeText(getContext(), "Error: Facility data is missing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        List<String> eventIDs = facility.getEvents();
+        if (eventIDs == null || eventIDs.isEmpty()) {
+            Log.d("MyEventsFragment", "Event IDs list is empty.");
+            Toast.makeText(getContext(), "No events found.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Log.d("MyEventsFragment", "Fetching events with IDs: " + eventIDs);
+
+        // Fetch events in batches of 10
+        for (int i = 0; i < eventIDs.size(); i += 10) {
+            List<String> batch = eventIDs.subList(i, Math.min(i + 10, eventIDs.size()));
+            fetchEventBatch(batch);
+        }
+    }
+
+    private void fetchEventBatch(List<String> batch) {
+        db.collection("events")
+                .whereIn("id", batch)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            String id = "";
-                            String name = document.getString("name");
-                            String userID = document.getString("facilityID");
-                            int maxEntries = document.getLong("entriesLimit").intValue();
-                            boolean collectGeo = document.getBoolean("collectGeoStatus");
-                            String hashQRData = "";
-                            Timestamp eventDate = document.getTimestamp("eventDate");
-                            Timestamp drawDate = document.getTimestamp("drawDate");
-                            if (userID.equals(organizer.getUserID())){
-                                Event event = new Event(name, userID, maxEntries, collectGeo, hashQRData, eventDate, drawDate);
+                            try {
+                                // Deserialize the Firestore document directly into the Event class
+                                Event event = document.toObject(Event.class);
+
+                                // Add the event to the list
                                 eventList.add(event);
+                            } catch (Exception e) {
+                                Log.e("MyEventsFragment", "Error deserializing event data: " + e.getMessage());
                             }
                         }
-                        eventsAdapter.notifyDataSetChanged(); // Notify the adapter that data has changed
+                        eventsAdapter.notifyDataSetChanged(); // Notify adapter of data changes
                     } else {
-                        Toast.makeText(getContext(), "Error getting documents: " + task.getException(), Toast.LENGTH_SHORT).show();
+                        Log.e("MyEventsFragment", "Error fetching events: ", task.getException());
+                        Toast.makeText(getContext(), "Failed to fetch some events.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
+
+
+
 
     /**
      * Clears the binding reference when the view is destroyed to prevent memory leaks.

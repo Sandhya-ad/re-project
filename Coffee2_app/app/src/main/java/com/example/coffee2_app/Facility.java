@@ -1,119 +1,206 @@
 package com.example.coffee2_app;
 
-<<<<<<< HEAD
+import android.graphics.Bitmap;
+import android.os.Build;
+import android.util.Log;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
-=======
-/**
- * Represents a Facility with an ID, name, and description
- */
->>>>>>> f77e9d4d48fdcea5d4001088bff08a98922a3343
-public class Facility {
+public class Facility implements Serializable {
 
-    /**
-     * ID for the facility
-     */
-    private String id;
-
-    /**
-     * Name of the facility
-     */
+    private ArrayList<String> events;
     private String name;
+    private String address;
+    private String email;
+    private String userID;
+    private String imageID;
 
     /**
-     * Description of the facility
+     * Constructor class for the Organization
+     * @param userID
      */
-    private String description;
-    private String imageUrl;
-
-<<<<<<< HEAD
-    // Constructor
-    public Facility(Map<String, Object> data) {
-        this.name = (String) data.get("name");
-        this.id = (String) data.get("id");
-        this.imageUrl = (String) data.get("imageUrl");
-        // Initialize other fields from the map
-    }
-=======
-    /**
-     * Constructs a Facility object with the specified ID, name, and description
-     *
-     * @param id ID for the facility
-     * @param name Name of the facility
-     * @param description Description of the facility
-     */
->>>>>>> f77e9d4d48fdcea5d4001088bff08a98922a3343
-    public Facility(String id, String name, String description) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.imageUrl = imageUrl;
+    public Facility(String userID) {
+        this.userID = userID;
+        this.events = new ArrayList<>();
     }
 
     /**
-     * Default constructor for Firebase
+     * Firestore Constructor class for Organizer
      */
-    public Facility() {}
-
-    /**
-     * Gets the unique identifier of the facility
-     *
-     * @return The ID of the facility.
-     */
-    public String getId() {
-        return id;
+    public Facility() {
+        this.events = new ArrayList<>();
     }
 
     /**
-     * Sets the unique identifier of the facility
-     *
-     * @param id The new ID of the facility
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    /**
-     * Gets the name of the facility
-     *
-     * @return The name of the facility
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Sets the name of the facility
-     *
-     * @param name The new name of the facility
+     * Setter for Organizer Name
+     * @param name
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * Gets the description of the facility
-     *
-     * @return The description of the facility
+     * Getter for Organizer Name
+     * @return Name of the Organizer
      */
-    public String getDescription() {
-        return description;
+    public String getName() { return this.name; }
+
+    /**
+     * Setter for Organizer Address
+     * @param address
+     */
+    // TODO: Set this as a real geolocation possibly?
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     /**
-     * Sets the description of the facility
-     *
-     * @param description The new description of the facility
+     * Getter for Organizer Address
+     * @return Address
      */
-    public void setDescription(String description) {
-        this.description = description;
+    public String getAddress() { return this.address; }
+
+    /**
+     * Setter for Email
+     * @param email
+     */
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    /**
+     * Getter for Email address
+     * @return Email
+     */
+    public String getEmail() { return this.email; }
+
+    /**
+     * Adds event into the Organizer's Event List
+     */
+    public void addEvent(String eventID) {
+        if (!events.contains(eventID)) {
+            events.add(eventID);
+        }
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+
+    /**
+     * Returns an ArrayList of the Organizer's Events
+     * @return ArrayList of Events
+     */
+    public ArrayList<String> getEvents() {
+        return events;
     }
+
+    /**
+     * Removes an event from the Organizer's Events List
+     * @param event
+     */
+    public void removeEvent(Event event) {
+        events.remove(event);
+    }
+
+    /**
+     * Getter for UserID
+     * @return UserID
+     */
+    public String getUserID() {
+        return userID;
+    }
+
+    /**
+     * Turns a Bitmap into an ID and stores it in the Firebase
+     * @param bitmap
+     */
+    public void setImage(Bitmap bitmap) {
+        ByteArrayOutputStream converter = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, converter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String encodedBmp = Base64.getEncoder().encodeToString(converter.toByteArray());
+            if (encodedBmp != null) {
+                this.imageID = UUID.nameUUIDFromBytes(encodedBmp.getBytes()).toString();
+                Log.d("ProfilePhoto", this.imageID);
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                Map<String, Object> data = new HashMap<>();
+                data.put("imageData", encodedBmp);
+                db.collection("images").document(imageID).set(data);
+            }
+            else {
+                System.err.println("Could not upload image.");
+            }
+        }
+        else {
+            Log.d("ImageTest", "Permission Error");
+        }
+    }
+
+    /**
+     * Method for JUnit testing, does not upload to cloud.
+     * @param bitmap
+     */
+    public void setLocalImage(Bitmap bitmap) {
+        ByteArrayOutputStream converter = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, converter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String encodedBmp = Base64.getEncoder().encodeToString(converter.toByteArray());
+            if (encodedBmp != null) {
+                this.imageID = UUID.nameUUIDFromBytes(encodedBmp.getBytes()).toString();
+            }
+            else {
+                System.err.println("Could not upload image.");
+            }
+        }
+        else {
+            Log.d("ImageTest", "Permission Error");
+        }
+    }
+
+    /**
+     * Returns
+     * @return ImageID to retrieve in Firestore
+     */
+    public String getImageID() {
+        return this.imageID;
+    }
+
+    public void setEvents(ArrayList<String> arrayList) {
+        this.events = arrayList;
+    }
+
+
+
+    /*
+    public void sync() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        HashMap<String, Object> map = (HashMap<String, Object>) document.getData().get("organizer");
+                        name = map.get("name").toString();
+                        email = map.get("email").toString();
+                        address = map.get("address").toString();
+                    }
+                    else {
+                        Log.d("FirestoreCheck", "Document does not exist!");
+                    }
+                }
+                else {
+                    Log.d("FirestoreCheck", String.valueOf(task.getException()));
+                }
+            }
+        });
+    }
+    */
+
 }

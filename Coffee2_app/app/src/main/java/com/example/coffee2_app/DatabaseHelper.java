@@ -1,9 +1,8 @@
 package com.example.coffee2_app;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Source;
+
+import java.util.Map;
 
 /**
  * Helper class to handle Firestore database operations related to `User` and `Entrant` objects.
@@ -49,15 +48,15 @@ public class DatabaseHelper {
 
     /**
      * Method for updating organizer
-     * @param organizer
+     * @param facility
      */
-    public static void updateOrganizer(Organizer organizer) {
-        if (organizer.getUserID() == null) {
+    public static void updateFacility(Facility facility) {
+        if (facility.getUserID() == null) {
             System.err.println("User ID is null, cannot update entrant.");
             return;
         }
-        db.collection("users").document(organizer.getUserID())
-                .update("organizer", organizer);
+        db.collection("users").document(facility.getUserID())
+                .update("facility", facility);
     }
 
      /* Adds a new User object to Firestore.
@@ -93,6 +92,39 @@ public class DatabaseHelper {
                 .addOnFailureListener(e -> System.err.println("Error deleting User from Firestore: " + e.getMessage()));
     }
 
-    public static void addEvent(User testUser) {
+    /**
+     * Adds a new event to Firestore and updates the associated Facility's event list.
+     *
+     * @param event The map containing event details to add to Firestore.
+     * @param facility  The Facility object to update with the new event ID.
+     */
+    public static void addEvent(Event event, Facility facility) {
+        if (facility == null || event == null) {
+            System.err.println("Facility or Event is null. Cannot add event.");
+            return;
+        }
+
+        // Add the Event to Firestore
+        db.collection("events")
+                .add(event)
+                .addOnSuccessListener(documentReference -> {
+                    String eventID = documentReference.getId(); // Retrieve the generated Event ID
+                    System.out.println("Event added to Firestore with ID: " + eventID);
+
+                    // Update Event object with the generated ID
+                    event.setId(eventID);
+
+                    // Update the Event in Firestore with the ID
+                    db.collection("events").document(eventID)
+                            .set(event)
+                            .addOnSuccessListener(aVoid -> System.out.println("Event ID updated in Firestore successfully."))
+                            .addOnFailureListener(e -> System.err.println("Error updating Event ID in Firestore: " + e.getMessage()));
+
+                    // Update the Facility's event list
+                    facility.addEvent(eventID); // Adds the event ID to the Facility object
+                    updateFacility(facility);  // Persist the Facility update in Firestore
+                })
+                .addOnFailureListener(e -> System.err.println("Error adding Event to Firestore: " + e.getMessage()));
     }
+
 }

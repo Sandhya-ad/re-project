@@ -25,12 +25,6 @@ public class MainActivity extends AppCompatActivity {
     private String deviceID;
     private User currentUser;
 
-    /**
-     * Initializes the activity, sets up Firestore, retrieves the device ID,
-     * and manages visibility for role-based buttons.
-     *
-     * @param savedInstanceState Bundle containing the activity's previously saved state.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,14 +55,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Sets up click listeners for Entrant, Organizer, and Admin buttons.
-     * Determines role-specific actions and navigates to appropriate activities.
-     *
-     * @param buttonEntrant   Button for Entrant role.
-     * @param buttonOrganizer Button for Organizer role.
-     * @param buttonAdmin     Button for Admin role.
-     */
     private void setupButtonListeners(Button buttonEntrant, Button buttonOrganizer, Button buttonAdmin) {
         buttonEntrant.setOnClickListener(v -> {
             checkIsDeleted(deviceID, isDeleted -> {
@@ -82,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                     buttonEntrant.setVisibility(View.GONE);
                 } else {
-                    // If not deleted, fetch the latest user data
+                    // Check Entrant Profile
                     checkAndAddUser(deviceID, newUser -> {
                         currentUser = newUser;
 
@@ -105,13 +91,28 @@ public class MainActivity extends AppCompatActivity {
         });
 
         buttonOrganizer.setOnClickListener(v -> {
-            if (currentUser.getOrganizer() == null) {
-                Log.e("test", "Organizer is null");
-            }
-            Intent intent = new Intent(MainActivity.this, OrganizerHomeActivity.class);
-            intent.putExtra("organizer", currentUser.getOrganizer());
-            intent.putExtra("deviceID", deviceID);
-            startActivity(intent);
+            // Check Organizer Profile on button click
+            checkAndAddUser(deviceID, newUser -> {
+                currentUser = newUser;
+
+                if (currentUser.getFacility() != null) {
+                    if (currentUser.getFacility().getName() == null || currentUser.getFacility().getAddress() == null) {
+                        // Redirect to profile setup if name or address is missing
+                        Intent intent = new Intent(MainActivity.this, OrganizerProfileSetupActivity.class);
+                        intent.putExtra("organizer", currentUser.getFacility());
+                        startActivity(intent);
+                    } else {
+                        // Organizer exists and has name and address
+                        Intent intent = new Intent(MainActivity.this, OrganizerHomeActivity.class);
+                        intent.putExtra("organizer", currentUser.getFacility());
+                        intent.putExtra("deviceID", deviceID);
+                        startActivity(intent);
+                    }
+                } else {
+                    Toast.makeText(this, "Organizer profile not found. Please contact support.", Toast.LENGTH_SHORT).show();
+                    Log.e("Firestore", "Organizer role not found for current user");
+                }
+            });
         });
 
         buttonAdmin.setOnClickListener(v -> {
@@ -121,12 +122,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Checks if the user exists in Firestore. If not, creates a new user with the device ID.
-     *
-     * @param deviceID The device ID to identify the user document in Firestore.
-     * @param callback Callback function to handle the loaded or newly created user.
-     */
     private void checkAndAddUser(String deviceID, UserCallback callback) {
         DocumentReference docRef = db.collection("users").document(deviceID);
 
@@ -155,13 +150,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Checks if the Entrant profile has been deleted for the specified device ID.
-     * Calls the provided callback with the deletion status.
-     *
-     * @param deviceID The device ID to check for deletion status in Firestore.
-     * @param callback Callback function to handle the deletion check result.
-     */
     private void checkIsDeleted(String deviceID, DeletionCallback callback) {
         DocumentReference docRef = db.collection("users").document(deviceID);
 
@@ -181,16 +169,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Callback interface to handle user loading events.
-     */
     interface UserCallback {
         void onUserLoaded(User user);
     }
 
-    /**
-     * Callback interface to handle deletion check results.
-     */
     interface DeletionCallback {
         void onDeletionChecked(boolean isDeleted);
     }

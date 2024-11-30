@@ -1,60 +1,60 @@
 package com.example.coffee2_app;
 
-import android.app.Activity;
+
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.fragment.app.FragmentManager;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.coffee2_app.Organizer_ui.myevents.EventDetailsFragment;
-//import com.example.coffee2_app.Organizer_ui.myevents.MyEventsFragment;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.text.BreakIterator;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * RecyclerView Adapter for displaying a list of events
- * Each entry includes event name, date and address
+ * RecyclerView Adapter for displaying a list of events.
+ * Each entry includes event name, date, description, and an image.
  */
 public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewHolder> {
 
-    private List<Event> events;
-    private Fragment currentFragment;
-    private Context context;
+    private final List<Event> events; // List of events
+    private static FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final Context context; // Context for navigation
 
     /**
-     * Constructor for EventsAdapter
-     * @param events
-     * @param currentFragment
+     * Constructor for EventsAdapter.
+     *
+     * @param events  List of events to display.
+     * @param context The context for navigation and access.
      */
-    public EventsAdapter(List<Event> events, Fragment currentFragment) {
+    public EventsAdapter(List<Event> events, Context context) {
         this.events = events;
         this.context = context;
-        this.currentFragment = currentFragment;
     }
 
     /**
-     * Inflates layout for each item and returns ViewHolder
+     * Inflates layout for each item and returns a ViewHolder.
      *
-     * @param parent   The parent ViewGroup
-     * @param viewType The view type of the new View
-     * @return A new instance of EventViewHolder containing item layout
+     * @param parent   The parent ViewGroup.
+     * @param viewType The view type of the new View.
+     * @return A new instance of EventViewHolder containing item layout.
      */
     @NonNull
     @Override
@@ -63,19 +63,21 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
         return new EventViewHolder(view);
     }
 
-
     /**
-     * Binds event data to the ViewHolder for each item in the list
+     * Binds event data to the ViewHolder for each item in the list.
      *
-     * @param holder   ViewHolder for binding
-     * @param position Position of item in the adapter
+     * @param holder   ViewHolder for binding.
+     * @param position Position of the item in the adapter.
      */
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = events.get(position);
+
+        // Set event name
         holder.nameTextView.setText(event.getName());
-        holder.addressTextView.setText(event.getOrganizer());
-        holder.entriesTextView.setText(event.getMaxEntries() > 0 ? String.valueOf(event.getMaxEntries()) : "Unlimited");
+
+        // Set event description
+        holder.descriptionTextView.setText(event.getDescription() != null ? event.getDescription() : "No description available");
 
         // Format and set the event date
         if (event.getEventDate() != null) {
@@ -86,24 +88,33 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
             holder.eventDateTextView.setText("N/A");
         }
 
+        // Fetch and set the poster image
+        String posterImageID = event.getImageID(); // Get the poster ID from the Event object
+        if (posterImageID != null && !posterImageID.isEmpty()) {
+            fetchEventPosterImage(posterImageID, holder.eventImageView); // Load the image dynamically
+        } else {
+            holder.eventImageView.setImageResource(R.drawable.ic_event_placeholder); // Fallback image
+        }
+
         // Set the click listener for the item
         holder.itemView.setOnClickListener(view -> {
-
             EventDetailsFragment eventDetailsFragment = new EventDetailsFragment();
 
+            // Pass event details to EventDetailsFragment via Bundle
             Bundle args = new Bundle();
             args.putString("name", event.getName());
-            args.putString("eventID", event.getOrganizer());
+            args.putString("eventID", event.getId());
             args.putInt("maxEntries", event.getMaxEntries());
             args.putBoolean("collectGeo", event.isCollectGeo());
+            args.putString("posterImageID", event.getImageID());
             args.putString("hashQRData", event.getHashQrData());
-            Date date = event.getEventDate().toDate();
-            args.putString("eventDate", new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH).format(date));
+
+            if (event.getEventDate() != null) {
+                Date date = event.getEventDate().toDate();
+                args.putString("eventDate", new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH).format(date));
+            }
 
             eventDetailsFragment.setArguments(args);
-
-            // Get context from the ViewHolder's itemView
-            Context context = holder.itemView.getContext();
 
             // Replace current fragment with EventDetailsFragment
             FragmentTransaction transaction = ((FragmentActivity) context).getSupportFragmentManager().beginTransaction();
@@ -112,34 +123,12 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
             transaction.commit();
         });
     }
-  /**
-        //Format and set the draw date
-        if (event.getDrawDate() != null) {
-            Date drawDate = event.getDrawDate().toDate();
-            String formattedDrawDate = DateFormat.format("MM/dd/yyyy", drawDate).toString();
-            holder.drawDateTextView.setText(formattedDrawDate);
-        } else {
-            holder.drawDateTextView.setText("N/A");
-        }
 
-        // Set the click listener to navigate to EventDetailsFragment with the event ID
-        holder.itemView.setOnClickListener(v -> {
-            EventDetailsFragment detailsFragment = new EventDetailsFragment();
-
-            // Bundle event ID to pass to the fragment
-            Bundle args = new Bundle();
-            args.putString("id", event.getId());
-
-            // Navigation controller to replace fragment
-            NavController navController = Navigation.findNavController((Activity) context, R.id.nav_host_fragment_activity_main);
-            navController.navigate(R.id.nav_host_fragment_activity_main, args);
-        });
-    }*/
 
     /**
-     * Returns total number of items in the list
+     * Returns the total number of items in the list.
      *
-     * @return The size of the name list
+     * @return The size of the events list.
      */
     @Override
     public int getItemCount() {
@@ -147,19 +136,44 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
     }
 
     /**
-     * ViewHolder class for holding references to the views for each event item
+     * ViewHolder class for holding references to the views for each event item.
      */
     static class EventViewHolder extends RecyclerView.ViewHolder {
-        public BreakIterator entriesTextView;
         TextView nameTextView;
-        TextView addressTextView;
+        TextView descriptionTextView;
         TextView eventDateTextView;
+        ImageView eventImageView;
 
         EventViewHolder(View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.event_name);
-            addressTextView = itemView.findViewById(R.id.event_address);
+            descriptionTextView = itemView.findViewById(R.id.event_description);
             eventDateTextView = itemView.findViewById(R.id.event_date);
+            eventImageView = itemView.findViewById(R.id.event_image); // ImageView for event poster
         }
     }
+    private void fetchEventPosterImage(String posterImageID, ImageView imageView) {
+        db.collection("images").document(posterImageID)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        String encodedImage = task.getResult().getString("imageData"); // Get the Base64 string
+                        if (encodedImage != null) {
+                            // Decode the Base64 encoded image
+                            byte[] decodedBytes = android.util.Base64.decode(encodedImage, android.util.Base64.DEFAULT);
+                            Bitmap posterBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+
+                            // Set the image in the ImageView
+                            imageView.setImageBitmap(posterBitmap);
+                        } else {
+                            Log.e("MyEventsFragment", "Image data is null for ID: " + posterImageID);
+                            imageView.setImageResource(R.drawable.ic_event_placeholder); // Fallback image
+                        }
+                    } else {
+                        Log.e("MyEventsFragment", "Error fetching poster image for ID: " + posterImageID, task.getException());
+                        imageView.setImageResource(R.drawable.ic_event_placeholder); // Fallback image
+                    }
+                });
+    }
+
 }

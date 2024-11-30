@@ -1,11 +1,9 @@
 package com.example.coffee2_app;
 
 
-import com.example.coffee2_app.Facility;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.DocumentSnapshot;
+
 import java.util.List;
 import android.util.Log;
 
